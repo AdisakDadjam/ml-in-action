@@ -5,7 +5,7 @@ subtitle: "S3 · จาก repo ของคอร์ส สู่โปรเ�
 
 ::: {.callout-note appearance="simple"}
 ## ในหน้านี้
-สมัคร GitHub และ Render → **fork** repo ของคอร์สมาเป็นของเรา → **clone** ลงเครื่องด้วย VS Code → สร้าง **virtual environment** ติดตั้ง library → รัน notebook ตรวจเครื่อง → **commit & push** ครั้งแรก
+สมัคร GitHub และ Render → **fork** repo ของคอร์สมาเป็นของเรา → **clone** ลงเครื่องด้วย VS Code → สร้าง **virtual environment** ติดตั้ง library → รัน notebook ตรวจเครื่อง → **commit & push** ครั้งแรก · เสริม: [เริ่มโปรเจกต์ใหม่ของตัวเองด้วย `git init`](#git-init)
 :::
 
 ## ทำไมต้อง GitHub
@@ -154,6 +154,83 @@ git push
 ## ผู้สอนอัปเดตเนื้อหาหลัง fork แล้ว?
 บนหน้า repo ของเรากด **Sync fork ▸ Update branch** แล้วใน VS Code กด **Sync Changes** (หรือ `git pull`) — ทำก่อนแก้ไฟล์ของตัวเองจะไม่มี conflict
 :::
+
+## เสริม: เริ่มโปรเจกต์ใหม่ของตัวเองด้วย git init {#git-init}
+
+ในคลาสเรา fork repo ที่มี Git อยู่แล้ว แต่หลังจบคอร์ส เมื่อเริ่มโปรเจกต์ใหม่จากโฟลเดอร์เปล่า ต้องทำ 3 อย่างเอง: **สร้าง repo ในเครื่อง** (`git init`) → **สร้าง repo เปล่าบน GitHub** → **เชื่อมสองฝั่งแล้ว push** ไม่ต้องทำตอนนี้ — อ่านไว้ใช้ภายหลัง
+
+### 1. สร้างโฟลเดอร์และไฟล์ .gitignore
+
+สร้างโฟลเดอร์ เช่น `my-ml-project` แล้วเปิดใน VS Code (**File ▸ Open Folder**) สร้างไฟล์ชื่อ `.gitignore` ไว้ที่ราก **ก่อน commit แรก** บอก Git ว่าไฟล์ไหนห้ามเก็บ:
+
+```text
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+.env
+```
+
+::: {.callout-warning}
+## ห้าม commit .venv, รหัสผ่าน หรือ API key
+`.venv` ใหญ่และสร้างใหม่ได้จาก `requirements.txt` · ไฟล์ `.env` มักมีความลับ — ถ้าเผลอ push ขึ้น GitHub ไปแล้ว ลบทีหลังไม่พอ เพราะยังอยู่ในประวัติ ต้องเปลี่ยน key ใหม่ทันที
+:::
+
+### 2. init → commit → push
+
+::: {.panel-tabset}
+## VS Code (แนะนำ)
+
+1. แถบซ้ายกด **Source Control** → **Initialize Repository** (= `git init`)
+2. กด **+** ที่หัวข้อ *Changes* เพื่อ stage ทุกไฟล์ → ตรวจว่า **ไม่มี** `.venv` ในรายการ → พิมพ์ Message เช่น `Initial commit` → **Commit**
+3. กด **Publish Branch** → เลือก **Publish to GitHub public repository** (หรือ private) → ตั้งชื่อ repo
+
+VS Code จะสร้าง repo บน GitHub, เชื่อม `origin` และ push ให้ในขั้นเดียว แล้วมีปุ่ม **Open on GitHub** ให้กดดู
+
+## Terminal
+
+เปิด terminal ในโฟลเดอร์โปรเจกต์ (VS Code: **Terminal ▸ New Terminal**) — คำสั่งเหมือนกันทั้ง PowerShell และ macOS:
+
+```bash
+git init -b main
+```
+
+```bash
+git add .
+```
+
+```bash
+git status
+```
+
+ตรวจผลของ `git status` ว่าไม่มี `.venv/` แล้วจึง commit:
+
+```bash
+git commit -m "Initial commit"
+```
+
+ไปที่ <https://github.com/new> ตั้งชื่อ repo (เช่น `my-ml-project`) → **ไม่ต้อง** ติ๊ก *Add a README*, *.gitignore* หรือ *license* (repo ต้องว่าง) → **Create repository** แล้วเชื่อมและ push:
+
+```bash
+git remote add origin https://github.com/<ชื่อเรา>/my-ml-project.git
+```
+
+```bash
+git push -u origin main
+```
+
+`-u` จำไว้ว่า branch `main` คู่กับ `origin/main` ครั้งต่อไปพิมพ์แค่ `git push`
+:::
+
+หลังจากนี้วงจรเดิมทุกครั้ง: แก้ไฟล์ → `git add` → `git commit -m "..."` → `git push` และถ้าจะ deploy บน Render ก็สร้าง Web Service จาก repo นี้ได้ตาม [Lab 4](../m4-deploy/render.qmd)
+
+| อาการ | สาเหตุ / วิธีแก้ |
+|---|---|
+| `Author identity unknown` ตอน commit | ยังไม่ได้ตั้ง `git config --global user.name` / `user.email` (หน้า [Windows](windows.qmd) / [macOS](macos.qmd)) |
+| `error: src refspec main does not match any` | ยังไม่มี commit — ทำ `git commit` ก่อน push |
+| `remote origin already exists` | เคยเชื่อมไว้แล้ว — ดูด้วย `git remote -v` ถ้าผิดแก้ด้วย `git remote set-url origin <url>` |
+| `! [rejected] main -> main (fetch first)` | repo บน GitHub ไม่ว่าง (เผลอติ๊ก README) — `git pull --rebase origin main` แล้ว `git push` อีกครั้ง |
+| เผลอ commit `.venv` ไปแล้ว | เพิ่ม `.venv/` ใน `.gitignore` แล้ว `git rm -r --cached .venv` → commit ใหม่ |
 
 ## Checklist ก่อนวันอบรม
 
