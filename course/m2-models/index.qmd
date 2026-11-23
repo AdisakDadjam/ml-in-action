@@ -94,7 +94,7 @@ search = GridSearchCV(rf, param_grid, cv=cv, scoring="roc_auc", n_jobs=-1).fit(X
 
 ## อ่านต่อ
 
-- **ลงมือ:** [Lab 2 · Random Forest และการเลือก model](../labs.qmd#lab2)
+- **ลงมือ:** [Lab 2 · Random Forest และการเลือก model](../labs.qmd#lab2) · [walkthrough พร้อมเฉลย](../walkthrough/lab2-random-forest.qmd)
 - @james2023 Ch. 8 (Tree-based methods) · @geron2022 Ch. 6–7
 - @breiman2001 — บทความต้นฉบับของ Random Forest
 - @strobl2007 — ทำไม impurity importance ลำเอียง

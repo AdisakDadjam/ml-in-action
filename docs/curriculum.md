@@ -51,9 +51,14 @@
 - **App:** Streamlit (ไม่ต้องเขียน HTML, แสดงกราฟ SHAP ง่าย) · commit ไฟล์ model (deploy สิ่งที่ test แล้ว) แทน train ตอน build
 - **Render:** plan Free, region Singapore, `rootDir: app`, `PYTHON_VERSION=3.12.10`, health check `/_stcore/health`
 
+## Walkthrough บนเว็บ
+
+`tools/build_lab_pages.py` สร้าง `course/walkthrough/<lab>.qmd` จากต้นฉบับ + เฉลยที่รันแล้ว: โค้ด TODO แบบที่ผู้เรียนเห็น, เฉลยในกล่อง *ดูเฉลย* (ซ่อนไว้), ผลลัพธ์/ตาราง/กราฟ, ลิงก์หน้าทฤษฎีใต้ทุกหัวข้อ · ลำดับ build: `build_lab_nb.py --all` → `build_lab_pages.py` → `quarto render course`
+
+⚠️ เว็บเป็น public — ผู้เรียนเห็นเฉลยได้ตั้งแต่ก่อนคลาส (ตั้งใจให้ใช้ทบทวน)
+
 ## สิ่งที่ยังไม่ได้ทำ / ไอเดียต่อ
 
 - วิดีโอประกอบแต่ละ module (ใช้ pipeline แบบ INT3 ได้)
-- หน้า walkthrough ที่แสดง notebook เฉลยบนเว็บ (แบบ `build_lab_pages.py` ของ INT3)
 - English mirror ของเว็บคอร์ส
 - ทดสอบ deploy จริงบน Render ด้วยบัญชีทดลองก่อนสอน และ dry-run การเตรียมเครื่องบน Windows จริง

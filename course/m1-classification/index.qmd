@@ -87,7 +87,7 @@ model ที่ตอบว่า "ไม่เป็น" ให้ทุกค�
 
 ## อ่านต่อ
 
-- **ลงมือ:** [Lab 1 · คัดกรองเบาหวานด้วย Logistic Regression](../labs.qmd#lab1)
+- **ลงมือ:** [Lab 1 · คัดกรองเบาหวานด้วย Logistic Regression](../labs.qmd#lab1) · [walkthrough พร้อมเฉลย](../walkthrough/lab1-logistic.qmd)
 - @james2023 Ch. 4 (Classification) และ §5.1 (Cross-validation)
 - @geron2022 Ch. 3 (Classification: precision/recall trade-off)
 - @saito2015 — ทำไม precision–recall บอกได้มากกว่า ROC เมื่อคลาสไม่สมดุล

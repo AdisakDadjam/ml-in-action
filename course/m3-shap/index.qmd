@@ -67,7 +67,7 @@ sv = shap.TreeExplainer(rf[-1])(X_imp)[:, :, 1]   # [:, :, 1] = คลาส 1 (
 
 ## อ่านต่อ
 
-- **ลงมือ:** [Lab 3 · อธิบาย model ด้วย SHAP](../labs.qmd#lab3)
+- **ลงมือ:** [Lab 3 · อธิบาย model ด้วย SHAP](../labs.qmd#lab3) · [walkthrough พร้อมเฉลย](../walkthrough/lab3-shap.qmd)
 - @molnar2022 บท Shapley values และ SHAP — อธิบายละเอียดพร้อมตัวอย่าง อ่านฟรีออนไลน์
 - @lundberg2017 — บทความที่เสนอ SHAP
 - @lundberg2020 — TreeSHAP และการรวมคำอธิบายรายคนเป็นภาพรวม

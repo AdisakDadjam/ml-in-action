@@ -27,17 +27,23 @@ book:
     - part: "M1 · Classification พื้นฐาน"
       chapters:
         - m1-classification/index.qmd
+        - walkthrough/lab1-logistic.qmd
     - part: "M2 · Random Forest และการเลือก model"
       chapters:
         - m2-models/index.qmd
+        - walkthrough/lab2-random-forest.qmd
     - part: "M3 · อธิบาย model ด้วย SHAP"
       chapters:
         - m3-shap/index.qmd
+        - walkthrough/lab3-shap.qmd
     - part: "M4 · จาก notebook สู่ web app"
       chapters:
         - m4-deploy/index.qmd
         - m4-deploy/render.qmd
-    - labs.qmd
+    - part: "Lab"
+      chapters:
+        - labs.qmd
+        - walkthrough/lab5-challenge-heart.qmd
     - credits.qmd
 
 language:

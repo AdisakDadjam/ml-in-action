@@ -11,3 +11,10 @@ main #refs.references[style*="display: none"]::before { content: "เอกส�
   font-weight: 500; margin-bottom: .8rem; }
 main #refs .csl-entry { margin-bottom: .45rem; }
 body.quarto-dark .theory-link { border-left-color: #5cb4d3; background: rgba(92, 180, 211, .10); }
+
+/* walkthrough pages (tools/build_lab_pages.py) */
+pre.cell-output, .cell-output pre, div.sourceCode.cell-output { font-size: .82em; background: transparent; border-left: 3px solid rgba(127, 127, 127, .35); padding-left: .75rem; }
+.cell-output-table { overflow-x: auto; font-size: .82em; margin-bottom: 1rem; }
+.cell-output-table table { width: auto; }
+.cell-output-table th, .cell-output-table td { padding: .15rem .55rem; text-align: right; }
+img.cell-figure, p > img[src^="fig/"] { max-width: 100%; height: auto; margin: .25rem 0 1rem; }

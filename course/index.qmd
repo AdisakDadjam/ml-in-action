@@ -104,7 +104,7 @@ toc: false
 ::: {.ep .lab}
 [Lab 1]{.epno}
 
-[คัดกรองเบาหวานด้วย Logistic Regression](labs.qmd#lab1) [60 นาที · `labs/lab1-logistic.ipynb`]{.epmeta}
+[คัดกรองเบาหวานด้วย Logistic Regression](walkthrough/lab1-logistic.qmd) [60 นาที · `labs/lab1-logistic.ipynb` · walkthrough พร้อมผลลัพธ์และเฉลย]{.epmeta}
 :::
 :::
 
@@ -120,7 +120,7 @@ toc: false
 ::: {.ep .lab}
 [Lab 2]{.epno}
 
-[Random Forest และการเลือก model](labs.qmd#lab2) [60 นาที · `labs/lab2-random-forest.ipynb`]{.epmeta}
+[Random Forest และการเลือก model](walkthrough/lab2-random-forest.qmd) [60 นาที · `labs/lab2-random-forest.ipynb` · walkthrough พร้อมผลลัพธ์และเฉลย]{.epmeta}
 :::
 :::
 
@@ -136,7 +136,7 @@ toc: false
 ::: {.ep .lab}
 [Lab 3]{.epno}
 
-[อธิบาย model ด้วย SHAP](labs.qmd#lab3) [50 นาที · `labs/lab3-shap.ipynb`]{.epmeta}
+[อธิบาย model ด้วย SHAP](walkthrough/lab3-shap.qmd) [50 นาที · `labs/lab3-shap.ipynb` · walkthrough พร้อมผลลัพธ์และเฉลย]{.epmeta}
 :::
 :::
 

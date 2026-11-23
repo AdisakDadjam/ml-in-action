@@ -10,7 +10,7 @@ subtitle: "2 ช่วง × 3 ชั่วโมง · notebook ทั้งห
 - รันทีละ cell ด้วย <kbd>Shift</kbd>+<kbd>Enter</kbd> จากบนลงล่าง
 - cell ที่มี `# TODO` ให้เติมโค้ดแทน `___` — hint อยู่ในบรรทัด TODO
 - ใต้ TODO มี cell ตรวจคำตอบ: ✅ = ไปต่อได้ · ❌ = อ่านข้อความแล้วแก้
-- **เฉลย** อยู่ใน `labs/solution/` (มีผลลัพธ์และกราฟครบ) — ลองคิดเองก่อนเปิด
+- **เฉลย** อยู่ใน `labs/solution/` (มีผลลัพธ์และกราฟครบ) และในหน้า **walkthrough** ของแต่ละ lab บนเว็บนี้ (กด *ดูเฉลย*) — ลองคิดเองก่อนเปิด
 
 ::: {.callout-tip}
 ## ตามไม่ทัน?
@@ -39,6 +39,8 @@ subtitle: "2 ช่วง × 3 ชั่วโมง · notebook ทั้งห
 
 ## Lab 1 · คัดกรองเบาหวานด้วย Logistic Regression {#lab1}
 
+📖 **[Walkthrough: Lab 1 พร้อมผลลัพธ์และเฉลย](walkthrough/lab1-logistic.qmd)**
+
 **อ่านก่อน:** [M1 · Classification สำหรับงานคัดกรอง](m1-classification/index.qmd) · **ข้อมูล:** `data/diabetes.csv` (768 คน)
 
 | หัวข้อ | สิ่งที่ทำ | TODO |
@@ -54,6 +56,8 @@ subtitle: "2 ช่วง × 3 ชั่วโมง · notebook ทั้งห
 
 ## Lab 2 · Random Forest และการเลือก model {#lab2}
 
+📖 **[Walkthrough: Lab 2 พร้อมผลลัพธ์และเฉลย](walkthrough/lab2-random-forest.qmd)**
+
 **อ่านก่อน:** [M2 · Decision tree → Random Forest](m2-models/index.qmd)
 
 | หัวข้อ | สิ่งที่ทำ | TODO |
@@ -67,6 +71,8 @@ subtitle: "2 ช่วง × 3 ชั่วโมง · notebook ทั้งห
 | 2.7 | บันทึก model + metadata ด้วย joblib แล้วโหลดกลับ | `joblib.dump` |
 
 ## Lab 3 · อธิบาย model ด้วย SHAP {#lab3}
+
+📖 **[Walkthrough: Lab 3 พร้อมผลลัพธ์และเฉลย](walkthrough/lab3-shap.qmd)**
 
 **อ่านก่อน:** [M3 · SHAP](m3-shap/index.qmd)
 
@@ -84,6 +90,8 @@ subtitle: "2 ช่วง × 3 ชั่วโมง · notebook ทั้งห
 ทำตามหน้า [Deploy บน Render](m4-deploy/render.qmd) (อ่าน [จาก notebook สู่ web app](m4-deploy/index.qmd) ก่อน) — ไม่มี notebook, ทำงานกับไฟล์ใน `app/`
 
 ## Mini-challenge · คัดกรองโรคหัวใจ {#lab5}
+
+📖 **[Walkthrough: Mini-challenge พร้อมผลลัพธ์และเฉลย](walkthrough/lab5-challenge-heart.qmd)**
 
 **ข้อมูล:** `data/heart.csv` (UCI Heart Disease, Cleveland, 303 คน) [@janosi1989; @detrano1989] · TODO มี hint น้อยกว่า lab ปกติ
 

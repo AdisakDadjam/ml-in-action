@@ -137,7 +137,7 @@ services:
 
 1. ส่ง URL ของ app ให้เพื่อนข้าง ๆ ลอง: กรอกค่าที่คิดว่า "เสี่ยงสูง" และ "เสี่ยงต่ำ" — waterfall สมเหตุสมผลไหม?
 2. ลองเปลี่ยน `TARGET_RECALL` ใน `app/train.py` เป็น 0.90 → train ใหม่ → test → push · threshold และจำนวนคนที่ถูกส่งตรวจเปลี่ยนอย่างไร?
-3. (ท้าทาย) deploy model **โรคหัวใจ** จาก [mini-challenge](../labs.qmd#lab5) เป็น service ที่สอง — ต้องแก้ไฟล์ไหนบ้าง?
+3. (ท้าทาย) deploy model **โรคหัวใจ** จาก [mini-challenge](../walkthrough/lab5-challenge-heart.qmd) เป็น service ที่สอง — ต้องแก้ไฟล์ไหนบ้าง?
 
 ::: {.callout-caution}
 ## ก่อนเผยแพร่ app ด้านสุขภาพจริง

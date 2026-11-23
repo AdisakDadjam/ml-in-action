@@ -33,7 +33,7 @@ labs/                     notebook ของผู้เรียน (มี TOD
 app/                      web app ที่ deploy: train.py · model_utils.py · app.py · model/ · tests/
 course/                   เว็บคอร์ส (Quarto book, ภาษาไทย)
 docs/curriculum.md        การออกแบบหลักสูตร (สำหรับผู้สอน)
-tools/                    fetch_data.py · build_lab_nb.py · make_check_setup.py
+tools/                    fetch_data.py · build_lab_nb.py · build_lab_pages.py · make_check_setup.py
 render.yaml               Render Blueprint
 .github/workflows/        รัน app/tests ทุกครั้งที่ push
 ```
@@ -46,6 +46,10 @@ python tools/fetch_data.py                # ดาวน์โหลด dataset 
 
 ```bash
 python tools/build_lab_nb.py --all        # labs/src/*.py → labs/*.ipynb + labs/solution/*.ipynb + checkpoints
+```
+
+```bash
+python tools/build_lab_pages.py        # เฉลยที่รันแล้ว → หน้า walkthrough บนเว็บ (course/walkthrough/)
 ```
 
 ```bash
