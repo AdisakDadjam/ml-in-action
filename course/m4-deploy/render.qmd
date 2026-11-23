@@ -5,7 +5,7 @@ subtitle: "Lab 4 · จาก GitHub repo สู่ URL ที่ใครก็
 
 ::: {.callout-note appearance="simple"}
 ## เป้าหมายของ lab นี้ (≈ 60 นาที)
-push โค้ดขึ้น GitHub → สร้าง **Web Service** บน Render ที่ดึงโค้ดจาก repo ของเรา → ได้ URL `https://<ชื่อ>.onrender.com` ส่งให้เพื่อนลองได้ → แก้โค้ด push ใหม่ แล้วดู Render deploy ให้เอง
+push โค้ดขึ้น GitHub → สร้าง **Project** และ **Web Service** บน Render ที่ดึงโค้ดจาก repo ของเรา → ได้ URL `https://<ชื่อ>.onrender.com` ส่งให้เพื่อนลองได้ → แก้โค้ด push ใหม่ แล้วดู Render deploy ให้เอง
 :::
 
 ## Render ทำอะไรให้เรา
@@ -40,37 +40,136 @@ streamlit run app/app.py
 
 test ผ่าน และ app เปิดได้ที่ <http://localhost:8501> → หยุดด้วย <kbd>Ctrl</kbd>+<kbd>C</kbd> · ถ้าแก้อะไรใน `app/` ให้ commit & push ให้เรียบร้อย ([วิธี commit & push](../setup/github.qmd#commit-push))
 
-## 1. สร้าง Web Service
+## สรุปค่าทั้งหมด (ใช้ทวนก่อนกด Deploy) {#summary}
 
-1. เข้า <https://dashboard.render.com> (login ด้วย GitHub)
-2. กด **+ New** ▸ **Web Service**
-3. ส่วน *Source Code* เลือก **GitHub** → ครั้งแรกกด **Configure GitHub** เพื่อติดตั้ง Render app บนบัญชี GitHub → เลือก **Only select repositories** ▸ `ml-in-action` → **Install**
-4. กลับมาที่ Render เลือก repo `<ชื่อเรา>/ml-in-action` → **Connect**
+| ส่วนในฟอร์ม | ค่า |
+|---|---|
+| Source Code | `<ชื่อเรา>/ml-in-action` |
+| Name | `diabetes-screening-<ชื่อเล่น>` |
+| Language / Branch | `Python 3` / `main` |
+| Region | `Singapore (Southeast Asia)` |
+| Root Directory | `app` |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true` |
+| Compute | `$0 / month` (Free) |
+| Environment Variables | `PYTHON_VERSION` = `3.12.10` |
+| Advanced ▸ Health Check Path | `/_stcore/health` |
+| Advanced ▸ Auto-Deploy | `On Commit` (ค่าเดิม) |
 
-## 2. ตั้งค่า
+รายละเอียดและเหตุผลของแต่ละช่องอยู่ในขั้นที่ 1–7 ด้านล่าง
 
-| ช่อง | ค่า | ความหมาย |
+## 1. เข้า Render
+
+1. เปิด <https://dashboard.render.com> แล้วกด **GitHub** ใต้ *Or continue with* → login GitHub → **Authorize Render**
+2. ครั้งแรก Render อาจถามชื่อและจุดประสงค์การใช้งาน ตอบได้ตามจริง — plan Free ไม่ต้องใส่บัตรเครดิต
+
+::: {.callout-warning}
+## ขึ้นว่า "This GitHub account is connected for deploys, not sign-in"
+แปลว่าเรามีบัญชี Render อยู่แล้วที่สมัครด้วยวิธีอื่น (เช่น Google) และ GitHub ผูกไว้สำหรับดึงโค้ดเท่านั้น → กด **Continue with Google** (หรือวิธีที่มีป้าย *Used last*) เข้าบัญชีเดิมได้เลย การ deploy ยังใช้ GitHub ที่ผูกไว้ตามปกติ
+:::
+
+## 2. สร้าง Project และ Web Service
+
+หน้าแรกของ Render คือ **Overview** ที่แสดง **Projects** — project คือกล่องรวม service ที่เกี่ยวข้องกัน (เช่น web app + database ของงานเดียวกัน)
+
+1. กด **+ Create new project** → ตั้งชื่อ เช่น `diabetes` → ได้ project ที่มี environment ชื่อ **Production** (ยังว่าง)
+2. กด **+ Create new service** ▸ **Web Service**
+
+**Web Service** คือ service ที่เปิด port รับ HTTP และได้ URL สาธารณะ — ตรงกับ web app ของเรา (ต่างจาก *Background Worker* ที่ไม่มี URL หรือ *Static Site* ที่เป็นแค่ไฟล์ HTML)
+
+::: {.callout-tip collapse="true"}
+## ไม่อยากสร้าง project ก็ได้
+กด **+ New** ที่แถบบนสุด ▸ **Web Service** ได้ฟอร์มเดียวกัน แค่ service ไม่ได้อยู่ใน project ไหน
+:::
+
+## 3. เลือก repo
+
+ส่วน **Source Code** เลือกแท็บ **Git Provider** ▸ **GitHub** → ครั้งแรก GitHub จะถามว่าจะติดตั้ง Render app ที่บัญชีไหน → เลือกบัญชีเรา → **Only select repositories** ▸ `ml-in-action` → **Install** → กลับมาที่ Render พิมพ์ `ml-in-action` ในช่อง Search แล้วคลิก repo
+
+**ทำไมต้องติดตั้ง app:** Render ต้องได้สิทธิ์อ่าน repo และรับ *webhook* (สัญญาณจาก GitHub ทุกครั้งที่เรา push) จึงจะ deploy ใหม่ให้อัตโนมัติ การเลือก *Only select repositories* ให้สิทธิ์เฉพาะ repo ที่ต้องใช้ ปลอดภัยกว่าให้ทั้งบัญชี
+
+::: {.callout-warning}
+## ค้นหาแล้วไม่เจอ ml-in-action
+เกิดเมื่อเคยเชื่อม Render กับ GitHub มาก่อนแต่ให้สิทธิ์แค่บาง repo:
+กด **Credentials** (ข้างช่อง Search) ▸ ชื่อบัญชี GitHub ▸ **Configure in GitHub** → หัวข้อ *Repository access* กด **Select repositories** เพิ่ม `ml-in-action` → **Save** → กลับมา reload หน้า Render
+:::
+
+ไม่ต้องใช้แท็บ **Public Git Repository** — แท็บนั้นไม่ต้องให้สิทธิ์ก็จริง แต่ **ไม่มี Auto-Deploy** ต้องกด deploy เองทุกครั้ง
+
+เมื่อเลือก repo แล้ว Render เขียนว่า *"It looks like you're using Python, so we've autofilled some fields"* — มันเดาจาก `requirements.txt` และเติมบางช่องให้ ซึ่ง **ยังไม่ครบ** ต้องแก้ต่อในขั้นที่ 4
+
+## 4. ตั้งค่าพื้นฐาน
+
+| ช่อง | Render เติมให้ | ตั้งเป็น | ความหมาย |
+|---|---|---|---|
+| **Name** | `ml-in-action` | `diabetes-screening-<ชื่อเล่น>` | ชื่อ service และส่วนหน้าของ URL `https://<name>.onrender.com` ถ้าชื่อซ้ำกับคนอื่น Render จะต่อท้ายด้วยตัวอักษรสุ่ม |
+| **Project** | `diabetes` | ค่าเดิม | project ที่สร้างในขั้นที่ 2 |
+| **Language** | `Python 3` | ค่าเดิม | runtime ที่ Render เตรียมให้ (รุ่นย่อยกำหนดในขั้นที่ 6) |
+| **Branch** | `main` | ค่าเดิม | branch ที่ใช้ build — push เข้า branch นี้เท่านั้นจึง deploy ใหม่ |
+| **Region** | `Oregon (US West)` | **`Singapore (Southeast Asia)`** | ที่ตั้ง server ใกล้ไทยที่สุด หน้าเว็บตอบเร็วกว่า · **เปลี่ยนภายหลังไม่ได้** ต้องสร้าง service ใหม่ |
+| **Root Directory** | ว่าง | **`app`** | ให้ Render เข้าไปทำงานในโฟลเดอร์ `app/` ก่อนรันทุกคำสั่ง และ deploy ใหม่เฉพาะเมื่อไฟล์ใน `app/` เปลี่ยน (แก้ `labs/` หรือ `course/` จะไม่ทำให้ deploy) |
+
+หลังใส่ Root Directory ช่องคำสั่งจะแสดง `app/ $` นำหน้า — Render แสดงให้รู้ว่าคำสั่งรันในโฟลเดอร์ไหน **ไม่ต้องพิมพ์เอง**
+
+## 5. Build Command และ Start Command
+
+Render แบ่งการขึ้นระบบเป็นสองช่วง: **build** (ทำครั้งเดียวต่อการ deploy — เตรียมของ) และ **start** (เปิด app และปล่อยรันไปเรื่อย ๆ)
+
+### Build Command: `pip install -r requirements.txt` (ค่าเดิม)
+
+| ส่วน | ความหมาย |
+|---|---|
+| `pip install` | ติดตั้ง Python package |
+| `-r requirements.txt` | อ่านรายชื่อ package จากไฟล์ (`-r` = requirements) — เพราะ Root Directory คือ `app` จึงเป็น `app/requirements.txt` |
+
+ไฟล์นี้ **pin เวอร์ชัน** (เช่น `scikit-learn==1.7.2`) ให้ตรงกับตอน train model ถ้า server ใช้ scikit-learn คนละรุ่น โหลดไฟล์ `.joblib` อาจเพี้ยนหรือ error
+
+### Start Command
+
+ช่องนี้ Render ใส่ตัวอย่างจาง ๆ ว่า `gunicorn your_application.wsgi` — **เป็นแค่ placeholder ของ app แบบ Flask/Django** ใช้กับ Streamlit ไม่ได้ ให้ใส่:
+
+```text
+streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+```
+
+| ส่วน | ความหมาย | ถ้าไม่ใส่ |
 |---|---|---|
-| **Name** | เช่น `diabetes-screening-<ชื่อเล่น>` | กลายเป็น URL `https://<name>.onrender.com` (ต้องไม่ซ้ำกับคนอื่น) |
-| **Language** | `Python 3` | |
-| **Branch** | `main` | push เข้า branch นี้แล้ว deploy ใหม่ |
-| **Region** | `Singapore` | ใกล้ไทยที่สุด |
-| **Root Directory** | `app` | Render ทำงานในโฟลเดอร์ `app/` (ที่มี `requirements.txt`, `app.py`) |
-| **Build Command** | `pip install -r requirements.txt` | ติดตั้ง library ตอน build |
-| **Start Command** | `streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true` | Render กำหนด port ผ่านตัวแปร `$PORT` และต้องรับ connection จากภายนอก (`0.0.0.0`) |
-| **Instance Type** | `Free` | |
+| `streamlit run app.py` | เปิด web server ของ Streamlit แล้วรันไฟล์ `app/app.py` | — |
+| `--server.port $PORT` | ฟังที่ port ตามตัวแปร `PORT` ที่ Render กำหนดให้ (ปกติ `10000`) — `$PORT` คือการอ่านค่าตัวแปรใน shell | Streamlit ใช้ 8501 แต่ Render ส่งผู้ใช้ไป port อื่น → `No open ports detected` แล้ว deploy fail |
+| `--server.address 0.0.0.0` | รับ connection จากทุก network interface (รวมถึงจากภายนอกเครื่อง) | อาจฟังแค่ `localhost` ซึ่งเข้าได้จากในเครื่อง server เท่านั้น Render ส่งคนเข้ามาไม่ถึง |
+| `--server.headless true` | บอกว่าไม่มีหน้าจอ: ไม่ต้องเปิด browser และไม่ถามอีเมลตอนเริ่ม | Streamlit อาจรอคำตอบที่ไม่มีใครพิมพ์ |
 
-ส่วน **Environment Variables** กด **Add Environment Variable**:
+บนเครื่องเราใช้แค่ `streamlit run app/app.py` ก็พอ เพราะค่า default (port 8501, localhost, เปิด browser) เหมาะกับการใช้คนเดียว — สาม flag นี้คือสิ่งที่เปลี่ยนเมื่อย้ายขึ้น server
 
-| Key | Value |
+## 6. Compute และ Environment Variables
+
+**Compute** — เลือกแถว **$0 / month · 0.1 CPU · 512 MB RAM · Free** (ปกติถูกเลือกไว้แล้ว) แถบสีม่วงที่เขียนว่า free instance จะ *spin down* เมื่อไม่มีคนใช้ คือเรื่อง "service หลับ" ในกรอบ Plan Free ข้างบน
+
+**Environment Variables** — กด **+ Add Environment Variable**:
+
+| KEY | VALUE |
 |---|---|
 | `PYTHON_VERSION` | `3.12.10` |
 
-(ไม่ตั้ง Render จะใช้ Python รุ่นล่าสุดของมัน ซึ่งอาจไม่ตรงกับที่เรา train)
+*environment variable* คือค่าที่ระบบส่งให้โปรแกรมตอนรัน (แบบเดียวกับ `$PORT`) Render อ่าน `PYTHON_VERSION` เพื่อเลือกรุ่น Python ถ้าไม่ตั้งจะได้รุ่นล่าสุดของ Render ซึ่งอาจยังไม่มี wheel ของ library บางตัว หรือไม่ตรงกับเครื่องที่เรา train
 
-กด **Advanced** ▸ **Health Check Path** ใส่ `/_stcore/health` (Render ใช้เช็กว่า app ยังทำงาน) → กด **Deploy Web Service**
+ช่องนี้เป็นที่เก็บ **ความลับ** (API key, รหัสผ่าน) ได้ด้วย — ค่าที่ใส่ที่นี่ไม่อยู่ใน Git จึงไม่หลุดขึ้น GitHub · ปุ่ม **Add from .env** ใช้นำเข้าจากไฟล์ `.env` ทีละหลายค่า (lab นี้ไม่ต้องใช้)
 
-## 3. ดู log ระหว่าง deploy
+## 7. Advanced แล้ว Deploy
+
+กด **› Advanced** ให้ขยายลงมา:
+
+| ช่อง | ค่า | ความหมาย |
+|---|---|---|
+| **Health Check Path** | `/_stcore/health` | URL ที่ Render เรียกเป็นระยะเพื่อเช็กว่า app ยังทำงาน Streamlit ตอบ `ok` ที่ path นี้เสมอ ถ้าเรียกไม่ติด Render จะไม่สลับไปใช้ deploy ใหม่ และ restart ตัวที่ค้าง |
+| **Pre-Deploy Command** | ว่าง | คำสั่งที่รันก่อน start เช่น migrate database — app เราไม่มี database |
+| **Auto-Deploy** | `On Commit` (ค่าเดิม) | push เข้า `main` เมื่อไร deploy ใหม่ทันที |
+| **Build Filters** | ว่าง | เลือก path ที่ทำให้ deploy ใหม่ — Root Directory `app` จำกัดให้แล้ว |
+| **Secret Files** | ว่าง | ไฟล์ลับที่ไม่อยากเก็บใน Git |
+
+ทวนกับ [สรุปค่าทั้งหมด](#summary) แล้วกด **Deploy web service** ที่ด้านล่าง (ข้าง ๆ เห็น `$0 / month` ยืนยันว่าใช้ plan ฟรี)
+
+## 8. ดู log ระหว่าง deploy
 
 หน้า **Logs** จะแสดงทุกขั้น — อ่านเป็นเรื่องปกติ ไม่ต้องกลัว:
 
@@ -87,7 +186,7 @@ Successfully installed ... scikit-learn-1.7.2 shap-0.49.1 streamlit-1.51.0 ...
 
 build ครั้งแรกใช้ราว 3–6 นาที → เมื่อขึ้น **Live** กดลิงก์ `https://<name>.onrender.com` ที่มุมบนซ้าย → ลองกรอกค่าแล้วกด **ประเมินความเสี่ยง**
 
-## 4. แก้โค้ด → push → deploy อัตโนมัติ
+## 9. แก้โค้ด → push → deploy อัตโนมัติ
 
 ลองเปลี่ยนอะไรเล็ก ๆ เพื่อเห็นวงจรทั้งหมด เช่นใน `app/app.py` แก้หัวข้อ:
 
@@ -99,7 +198,7 @@ commit (`Personalize app title`) → push → ดูแท็บ **Events** ใ�
 
 พร้อมกันนั้นเปิดแท็บ **Actions** บน GitHub ดูว่า test ผ่าน (✓) — ในทีมจริงเราจะตั้งให้ deploy เฉพาะ commit ที่ test ผ่าน (Render: *Settings ▸ Auto-Deploy ▸ After CI Checks Pass*)
 
-## ทางลัด: Blueprint (`render.yaml`)
+## ทางลัด: Blueprint (render.yaml) {#blueprint}
 
 repo มีไฟล์ `render.yaml` ที่เขียนค่าทั้งหมดข้างบนไว้เป็นโค้ด (Infrastructure as Code):
 
@@ -125,6 +224,8 @@ services:
 
 | ข้อความใน log | สาเหตุ / วิธีแก้ |
 |---|---|
+| ค้นหา repo ใน Render ไม่เจอ | Render app บน GitHub ยังไม่ได้สิทธิ์ repo นี้ → ขั้นที่ 3 *Credentials ▸ Configure in GitHub* |
+| `gunicorn: command not found` | ลืมแก้ Start Command (ยังเป็น placeholder) → *Settings ▸ Build & Deploy ▸ Start Command* |
 | `Could not open requirements file: … requirements.txt` | Root Directory ไม่ใช่ `app` → *Settings ▸ Build & Deploy ▸ Root Directory* |
 | `ModuleNotFoundError: No module named 'model_utils'` | เหมือนข้อบน — Start Command ต้องรันจากโฟลเดอร์ `app` |
 | `No open ports detected` / ค้างที่ *Deploying* แล้ว fail | Start Command ขาด `--server.port $PORT` หรือ `--server.address 0.0.0.0` |
