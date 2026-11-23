@@ -8,6 +8,12 @@ subtitle: "Lab 4 · จาก GitHub repo สู่ URL ที่ใครก็
 push โค้ดขึ้น GitHub → สร้าง **Project** และ **Web Service** บน Render ที่ดึงโค้ดจาก repo ของเรา → ได้ URL `https://<ชื่อ>.onrender.com` ส่งให้เพื่อนลองได้ → แก้โค้ด push ใหม่ แล้วดู Render deploy ให้เอง
 :::
 
+::: {.callout-tip}
+## ดู app ตัวอย่างที่ deploy แล้ว
+<https://diabetes-screening-wxws.onrender.com> — ผลลัพธ์ของ lab นี้ deploy จาก repo ของคอร์สด้วยขั้นตอนในหน้านี้ทุกขั้น ลองกรอกค่าแล้วกด **ประเมินความเสี่ยง** ดูก่อนลงมือ
+ใช้ plan Free จึงอาจต้องรอราว 1 นาทีถ้า service หลับอยู่ (ไม่มีคนใช้เกิน 15 นาที)
+:::
+
 ## Render ทำอะไรให้เรา
 
 ```text
