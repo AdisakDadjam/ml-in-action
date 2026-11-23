@@ -1,0 +1,67 @@
+project:
+  type: book
+  output-dir: _book
+
+lang: th
+bibliography: references.bib
+link-citations: true
+citations-hover: true
+
+book:
+  title: "ML in Action: Classification → SHAP → Deploy"
+  subtitle: "คัดกรองโรคด้วย machine learning ตั้งแต่เตรียมเครื่องจนขึ้น web app"
+  author: "ผศ.ดร.รัตน์ชัยนันท์ ธรรมสุจริต"
+  date: today
+  repo-url: https://github.com/Ratchainant/ml-in-action
+  repo-subdir: course
+  repo-actions: [source, issue]
+  page-navigation: true
+  chapters:
+    - index.qmd
+    - part: "S · เตรียมเครื่อง"
+      chapters:
+        - setup/windows.qmd
+        - setup/macos.qmd
+        - setup/github.qmd
+    - part: "M1 · Classification พื้นฐาน"
+      chapters:
+        - m1-classification/index.qmd
+    - part: "M2 · Random Forest และการเลือก model"
+      chapters:
+        - m2-models/index.qmd
+    - part: "M3 · อธิบาย model ด้วย SHAP"
+      chapters:
+        - m3-shap/index.qmd
+    - part: "M4 · จาก notebook สู่ web app"
+      chapters:
+        - m4-deploy/index.qmd
+        - m4-deploy/render.qmd
+    - labs.qmd
+    - credits.qmd
+
+language:
+  callout-tip-title: "เคล็ดลับ"
+  callout-note-title: "หมายเหตุ"
+  callout-important-title: "สำคัญ"
+  callout-warning-title: "ระวัง"
+  callout-caution-title: "ข้อควรระวัง"
+  toc-title-document: "สารบัญ"
+  toc-title-website: "ในหน้านี้"
+  section-title-references: "เอกสารอ้างอิง"
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    respect-user-color-scheme: true
+    mainfont: "Sarabun"
+    fontsize: 1.05em
+    toc: true
+    number-sections: false
+    code-copy: true
+    css: [assets/site.css, assets/home.css]
+    include-in-header:
+      text: |
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">

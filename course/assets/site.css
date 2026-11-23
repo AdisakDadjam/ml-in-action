@@ -1,0 +1,13 @@
+/* theory/lab pages */
+.theory-link { font-size: .9em; padding: .35rem .75rem; margin: .25rem 0 1rem; border-left: 3px solid #1f6f8b; background: rgba(31, 111, 139, .07); border-radius: 0 6px 6px 0; }
+.theory-link p { margin: 0; }
+.os-tabs .nav-link { font-weight: 600; }
+kbd { font-size: .85em; }
+
+/* Per-page reference list: a Quarto book hides each chapter's #refs (it only feeds hover pop-ups) — show it at the end. */
+main #refs.references[style*="display: none"] { display: block !important; margin-top: 2.5rem; padding-top: 1rem;
+  border-top: 1px solid rgba(127, 127, 127, .3); font-size: .9em; }
+main #refs.references[style*="display: none"]::before { content: "เอกสารอ้างอิง"; display: block; font-size: 1.6rem;
+  font-weight: 500; margin-bottom: .8rem; }
+main #refs .csl-entry { margin-bottom: .45rem; }
+body.quarto-dark .theory-link { border-left-color: #5cb4d3; background: rgba(92, 180, 211, .10); }

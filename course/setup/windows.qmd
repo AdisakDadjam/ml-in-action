@@ -1,0 +1,122 @@
+---
+title: "เตรียมเครื่อง: Windows"
+subtitle: "S1 · Python 3.12 · VS Code · Git"
+---
+
+::: {.callout-important}
+## ทำให้เสร็จก่อนวันอบรมอย่างน้อย 1 วัน
+ใช้เวลาราว 30–45 นาที (ส่วนใหญ่รอดาวน์โหลด) · ใช้ Windows 10 หรือ 11 · ถ้าติดตรงไหน capture หน้าจอ error ส่งผู้สอนได้เลย
+ใช้ macOS? ไปหน้า [macOS](macos.qmd)
+:::
+
+## สิ่งที่จะติดตั้ง
+
+| โปรแกรม | ใช้ทำอะไร |
+|---|---|
+| **Python 3.12** | ภาษาที่ใช้สร้าง model (ใช้ 3.12 ทั้งคลาส เพื่อให้ library ทุกตัวมี wheel พร้อมติดตั้ง) |
+| **VS Code** + extension **Python**, **Jupyter** | เขียนโค้ด เปิด notebook และใช้ Git ผ่านหน้าจอ |
+| **Git** | เก็บประวัติโค้ดและส่งขึ้น GitHub (Render ดึงโค้ดจาก GitHub ไป deploy) |
+
+::: {.callout-note}
+## ไม่ใช้ Anaconda
+คอร์สนี้ใช้ Python จาก python.org + `venv` + `pip` ซึ่งเป็นวิธีเดียวกับที่ Render ใช้ตอน deploy — สิ่งที่รันได้บนเครื่องเราจะรันบน server ได้เหมือนกัน
+(ถ้ามี Anaconda อยู่แล้วไม่ต้องถอน แค่ทำตามขั้นตอนนี้ให้ตรง ๆ)
+:::
+
+## วิธีที่ 1: ติดตั้งด้วย winget (เร็วที่สุด)
+
+Windows 10/11 รุ่นใหม่มี **winget** อยู่แล้ว กด <kbd>Win</kbd> พิมพ์ `PowerShell` → เปิด **Windows PowerShell** แล้ววางทีละบรรทัด:
+
+```powershell
+winget install -e --id Python.Python.3.12
+```
+
+```powershell
+winget install -e --id Microsoft.VisualStudioCode
+```
+
+```powershell
+winget install -e --id Git.Git
+```
+
+ถ้ามีหน้าต่างถามสิทธิ์ (UAC) ให้กด **Yes** · ติดตั้งครบแล้ว **ปิด PowerShell แล้วเปิดใหม่** (เพื่อให้ PATH ใหม่มีผล) ข้ามไป [ตรวจสอบ](#check)
+
+ถ้าขึ้นว่า `winget` is not recognized ให้ใช้วิธีที่ 2
+
+## วิธีที่ 2: ดาวน์โหลด installer
+
+### Python 3.12
+
+1. เปิด <https://www.python.org/downloads/release/python-31210/> เลื่อนลงไปที่ **Files** → **Windows installer (64-bit)**
+2. เปิดไฟล์ที่ดาวน์โหลด หน้าแรกของ installer:
+   - ✅ ติ๊ก **Add python.exe to PATH** (สำคัญมาก — อยู่ด้านล่างของหน้าต่าง)
+   - กด **Install Now**
+3. หน้าสุดท้ายถ้ามีปุ่ม **Disable path length limit** ให้กดด้วย
+
+::: {.callout-tip}
+## มี Python รุ่นอื่นอยู่แล้ว?
+ติดตั้ง 3.12 เพิ่มได้เลย อยู่ร่วมกันได้ — เราจะเรียก 3.12 ตรง ๆ ด้วยคำสั่ง `py -3.12` ตอนสร้าง environment
+:::
+
+### VS Code
+
+1. ดาวน์โหลดจาก <https://code.visualstudio.com/> → **Download for Windows**
+2. ระหว่างติดตั้ง หน้า *Select Additional Tasks* ติ๊ก:
+   - ✅ **Add "Open with Code" action** (ทั้งสองข้อ)
+   - ✅ **Add to PATH**
+
+### Git
+
+1. ดาวน์โหลดจาก <https://git-scm.com/downloads/win> → **Click here to download** (64-bit)
+2. กด Next ตามค่าเริ่มต้นได้เกือบทั้งหมด ยกเว้น 2 หน้า:
+   - *Choosing the default editor used by Git* → เลือก **Use Visual Studio Code as Git's default editor**
+   - *Adjusting the name of the initial branch* → เลือก **Override … `main`**
+
+## ติดตั้ง extension ใน VS Code
+
+เปิด VS Code → แถบซ้ายกดไอคอน **Extensions** (สี่เหลี่ยมสี่ช่อง หรือ <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd>) → ค้นหาแล้วกด **Install**:
+
+- **Python** (ผู้พัฒนา Microsoft) — จะติดตั้ง Pylance และ Python Debugger มาด้วย
+- **Jupyter** (ผู้พัฒนา Microsoft)
+
+## ตรวจสอบ {#check}
+
+ใน VS Code เปิด *Terminal ▸ New Terminal* (<kbd>Ctrl</kbd>+<kbd>`</kbd>) แล้วพิมพ์:
+
+```powershell
+py -3.12 --version
+```
+
+```powershell
+git --version
+```
+
+```powershell
+code --version
+```
+
+ต้องได้ `Python 3.12.x`, `git version 2.x` และเลขเวอร์ชันของ VS Code ครบสามบรรทัด
+
+## ตั้งชื่อให้ Git (ครั้งเดียวต่อเครื่อง)
+
+Git บันทึกว่าใครเป็นคนแก้โค้ดแต่ละครั้ง — ใช้ชื่อและอีเมลเดียวกับบัญชี GitHub ที่จะสมัครในหน้าถัดไป:
+
+```powershell
+git config --global user.name "Your Name"
+```
+
+```powershell
+git config --global user.email "you@example.com"
+```
+
+## ปัญหาที่พบบ่อยบน Windows
+
+| อาการ | วิธีแก้ |
+|---|---|
+| `py` / `python` is not recognized | ลืมติ๊ก *Add python.exe to PATH* → รัน installer อีกครั้ง เลือก **Modify** ▸ ติ๊ก *Add Python to environment variables* หรือปิดแล้วเปิด VS Code ใหม่ |
+| พิมพ์ `python` แล้วเปิด Microsoft Store | Windows มีทางลัดปลอมไว้ — ใช้ `py -3.12` แทน หรือปิดที่ *Settings ▸ Apps ▸ Advanced app settings ▸ App execution aliases* (ปิด python.exe, python3.exe) |
+| `.venv\Scripts\activate` ขึ้น *running scripts is disabled on this system* | PowerShell บล็อก script โดยค่าเริ่มต้น รัน `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` ครั้งเดียว (มีผลเฉพาะ user เรา) — หรือไม่ต้อง activate เอง ให้ VS Code เลือก interpreter ให้ (ดูหน้าถัดไป) |
+| ชื่อ user ของ Windows เป็นภาษาไทย / มีเว้นวรรค | บาง library มีปัญหากับ path ภาษาไทย — เก็บงานไว้ที่ `C:\work\` แทน `Documents` |
+| เครื่องบริษัทติด proxy, `pip install` timeout | แจ้งผู้สอนก่อนวันอบรม (อาจต้องตั้ง `pip config set global.proxy …` ตามที่ IT ให้) |
+
+**ต่อไป:** [GitHub: fork, clone, environment](github.qmd)

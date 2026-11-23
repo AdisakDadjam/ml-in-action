@@ -1,0 +1,178 @@
+---
+body-classes: course-home
+toc: false
+---
+
+# ยินดีต้อนรับ {.unnumbered}
+
+::: {.hero}
+[ML in Action: Classification → SHAP → Deploy]{.hero-title}
+
+[คัดกรองโรคเบาหวานด้วย Logistic Regression และ Random Forest · อธิบายด้วย SHAP · ขึ้น web app บน Render]{.hero-sub}
+
+[เริ่มจากเครื่องเปล่า (Windows หรือ macOS) ติดตั้ง Python, VS Code และ Git → สร้าง model คัดกรองเบาหวาน เลือก threshold ให้เหมาะกับงานคัดกรอง → เปิดกล่องดำด้วย SHAP ว่า model ตัดสินแต่ละคนเพราะอะไร → ห่อเป็น web app แล้ว deploy ให้คนอื่นใช้ได้จริงผ่าน GitHub + Render]{.lead}
+
+::: {.byline}
+**ผศ.ดร.รัตน์ชัยนันท์ ธรรมสุจริต**
+
+::: {.affs}
+::: {.aff}
+หัวหน้าหน่วยวิจัยเฉพาะทางด้านปัญญาประดิษฐ์\
+ภาควิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์\
+มหาวิทยาลัยศรีนครินทรวิโรฒ
+:::
+:::
+:::
+
+::: {.cta}
+[💻 เริ่มเตรียมเครื่อง](setup/windows.qmd) [📘 M1 · Classification](m1-classification/index.qmd) [🧪 แผน lab](labs.qmd)
+:::
+:::
+
+::: {.stats}
+::: {.stat}
+**4** [module + การเตรียมเครื่อง]{}
+:::
+::: {.stat}
+**6** [ชั่วโมง · 2 ช่วง ช่วงละ 3 ชม.]{}
+:::
+::: {.stat}
+**4** [notebook + 1 web app]{}
+:::
+::: {.stat}
+**2** [ชุดข้อมูลจริง · เบาหวาน / หัวใจ]{}
+:::
+:::
+
+## ก่อนวันอบรม {#before .unnumbered}
+
+::: {.cards}
+::: {.card-item}
+💻
+
+**1 · เตรียมเครื่อง** ทำตามหน้า [Windows](setup/windows.qmd) หรือ [macOS](setup/macos.qmd) ติดตั้ง Python 3.12, VS Code และ Git
+:::
+::: {.card-item}
+🐙
+
+**2 · GitHub + Render** สมัคร GitHub แล้วทำตาม [GitHub: fork, clone, environment](setup/github.qmd) จนรัน `00-check-setup.ipynb` ขึ้น ✅ ทุกบรรทัด · สมัคร [Render](https://render.com) ด้วยบัญชี GitHub ไว้ก่อน
+:::
+::: {.card-item}
+📖
+
+**3 · อ่าน M1** หน้า [Classification พื้นฐาน](m1-classification/index.qmd) ใช้เวลาราว 15 นาที ถ้ายังไม่เคยเรียน ML มาก่อนนี่คือหน้าที่สำคัญที่สุด
+:::
+:::
+
+::: {.notice}
+**ไม่ใช่เครื่องมือทางการแพทย์** — model และ app ในคอร์สนี้สร้างเพื่อการเรียนรู้จากข้อมูลเปิดขนาดเล็ก ไม่ผ่านการตรวจสอบทางคลินิก ห้ามใช้ตัดสินใจเรื่องสุขภาพจริง
+:::
+
+## เส้นทางการเรียน {#path .unnumbered}
+
+::: {.modules}
+::: {.module}
+::: {.module-head}
+[S]{.mtag} **เตรียมเครื่อง** [ทำก่อนวันอบรม · ราว 45 นาที]{.mgoal}
+:::
+::: {.ep}
+[S1]{.epno}
+
+[Windows: Python 3.12 · VS Code · Git](setup/windows.qmd) [winget หรือ installer · PATH · PowerShell]{.epmeta}
+:::
+::: {.ep}
+[S2]{.epno}
+
+[macOS: Python 3.12 · VS Code · Git](setup/macos.qmd) [Command Line Tools · python.org installer · Terminal]{.epmeta}
+:::
+::: {.ep}
+[S3]{.epno}
+
+[GitHub: fork, clone, environment](setup/github.qmd) [fork repo · clone ใน VS Code · venv · pip · ตรวจเครื่อง · commit & push]{.epmeta}
+:::
+:::
+
+::: {.module}
+::: {.module-head}
+[M1]{.mtag} **Classification พื้นฐาน** [ทำนายคลาส 0/1 และวัดผลให้ถูกกับงานคัดกรอง]{.mgoal}
+:::
+::: {.ep}
+[อ่าน]{.epno}
+
+[Classification สำหรับงานคัดกรอง](m1-classification/index.qmd) [train/test · pipeline · logistic regression · confusion matrix · recall/precision · ROC-AUC · threshold]{.epmeta}
+:::
+::: {.ep .lab}
+[Lab 1]{.epno}
+
+[คัดกรองเบาหวานด้วย Logistic Regression](labs.qmd#lab1) [60 นาที · `labs/lab1-logistic.ipynb`]{.epmeta}
+:::
+:::
+
+::: {.module}
+::: {.module-head}
+[M2]{.mtag} **Random Forest และการเลือก model** [model ที่ไม่ใช่เส้นตรง และการเทียบอย่างเป็นธรรม]{.mgoal}
+:::
+::: {.ep}
+[อ่าน]{.epno}
+
+[Decision tree → Random Forest](m2-models/index.qmd) [overfitting · bagging · cross-validation · GridSearchCV · feature importance]{.epmeta}
+:::
+::: {.ep .lab}
+[Lab 2]{.epno}
+
+[Random Forest และการเลือก model](labs.qmd#lab2) [60 นาที · `labs/lab2-random-forest.ipynb`]{.epmeta}
+:::
+:::
+
+::: {.module}
+::: {.module-head}
+[M3]{.mtag} **อธิบาย model ด้วย SHAP** [model ตัดสินแต่ละคนเพราะอะไร]{.mgoal}
+:::
+::: {.ep}
+[อ่าน]{.epno}
+
+[SHAP: แบ่งเครดิตให้แต่ละ feature](m3-shap/index.qmd) [Shapley value · beeswarm · dependence · waterfall · ข้อจำกัด]{.epmeta}
+:::
+::: {.ep .lab}
+[Lab 3]{.epno}
+
+[อธิบาย model ด้วย SHAP](labs.qmd#lab3) [50 นาที · `labs/lab3-shap.ipynb`]{.epmeta}
+:::
+:::
+
+::: {.module}
+::: {.module-head}
+[M4]{.mtag} **จาก notebook สู่ web app** [script ที่รันซ้ำได้ · Streamlit · test · Render]{.mgoal}
+:::
+::: {.ep}
+[อ่าน]{.epno}
+
+[จาก notebook สู่ app](m4-deploy/index.qmd) [train.py · model_utils.py · app.py · pytest · GitHub Actions]{.epmeta}
+:::
+::: {.ep .lab}
+[Lab 4]{.epno}
+
+[Deploy บน Render](m4-deploy/render.qmd) [60 นาที · push ขึ้น GitHub → Web Service → URL ของตัวเอง]{.epmeta}
+:::
+:::
+:::
+
+## หลังจบคอร์ส คุณจะ… {#outcomes .unnumbered}
+
+::: {.cards}
+::: {.card-item}
+🧰
+
+**ตั้งค่าโปรเจกต์ ML ได้เอง** venv, requirements, VS Code + Jupyter, Git/GitHub บนทั้ง Windows และ macOS
+:::
+::: {.card-item}
+🎯
+
+**สร้างและประเมิน classifier อย่างถูกวิธี** ไม่หลง accuracy, เลือก threshold ตามต้นทุนของความผิดพลาด, ไม่แอบดู test set
+:::
+::: {.card-item}
+🚀
+
+**อธิบายและส่งมอบ model** ใช้ SHAP ตรวจและสื่อสารเหตุผล แล้ว deploy เป็น web app ที่มี URL จริง
+:::
+:::

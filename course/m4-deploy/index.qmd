@@ -1,0 +1,115 @@
+---
+title: "จาก notebook สู่ web app"
+subtitle: "M4 · train.py · model_utils.py · app.py · tests"
+---
+
+::: {.callout-note appearance="simple"}
+## ในหน้านี้
+ทำไม notebook ยังไม่ใช่ของที่ deploy ได้ · แยกโค้ดเป็น 3 ไฟล์ · รัน app บนเครื่อง · test อัตโนมัติด้วย pytest และ GitHub Actions — แล้วไป [deploy บน Render](render.qmd)
+:::
+
+## Notebook ดีสำหรับสำรวจ ไม่ดีสำหรับส่งมอบ
+
+notebook รันทีละ cell สลับลำดับได้ มีตัวแปรค้างในหน่วยความจำ — สะดวกตอนทดลอง แต่ทำให้ "ผลที่เห็น" อาจทำซ้ำไม่ได้
+ของที่ deploy ต้อง **รันซ้ำได้ผลเดิม** ตั้งแต่ข้อมูลดิบจนถึง model, **แยกส่วน** ให้แต่ละไฟล์ทำหน้าที่เดียว และ **ตรวจได้อัตโนมัติ**
+
+```text
+app/
+├── train.py           ข้อมูล → model (รันเมื่อต้องการ train ใหม่)
+├── model_utils.py     โหลด model, แปลง input, ทำนาย, SHAP  ← logic ทั้งหมดอยู่ที่นี่
+├── app.py             หน้าเว็บ Streamlit (เรียก model_utils เท่านั้น)
+├── model/
+│   ├── diabetes_rf.joblib   pipeline ที่ train แล้ว (~0.2 MB)
+│   └── metadata.json        threshold, metrics, เวอร์ชัน scikit-learn
+├── tests/test_model.py      ตรวจ model ก่อน deploy
+└── requirements.txt         library ที่ server ต้องติดตั้ง
+```
+
+## 1. `train.py` — notebook ที่กลายเป็น script
+
+ขั้นตอนเหมือน Lab 1–2 ทุกอย่าง แต่เขียนเป็นลำดับเดียวที่รันจบในคำสั่งเดียว:
+
+```bash
+python app/train.py
+```
+
+clean (0 → NaN) → split 80/20 แบบ stratify → pipeline (imputer + Random Forest ด้วย hyperparameter จาก GridSearchCV) → เลือก threshold จาก out-of-fold บน train → ประเมินบน test ครั้งเดียว → บันทึก
+
+นอกจาก model แล้วยังบันทึก **metadata.json** — สิ่งที่ app ต้องรู้เพื่อตัดสินแบบเดียวกับที่เราประเมินไว้ และสิ่งที่คนดูแลต้องรู้ในอนาคต:
+
+```json
+{
+  "model": "random_forest",
+  "threshold": 0.3316,
+  "target_recall": 0.8,
+  "test_metrics": {"roc_auc": 0.8011, "recall": 0.7963, "precision": 0.5584},
+  "scikit_learn": "1.7.2"
+}
+```
+
+::: {.callout-warning}
+## เวอร์ชัน scikit-learn ต้องตรงกัน
+ไฟล์ `.joblib` คือ object ของ Python ที่ถูก pickle — โหลดด้วย scikit-learn คนละเวอร์ชันอาจ error หรือ (แย่กว่า) ให้ผลผิดเงียบ ๆ
+`app/requirements.txt` จึง **pin** `scikit-learn==1.7.2` และมี test ตรวจว่าตรงกับ `metadata.json`
+:::
+
+## 2. `model_utils.py` — logic อยู่ที่เดียว
+
+app และ test เรียกฟังก์ชันชุดเดียวกัน จึงมั่นใจได้ว่าสิ่งที่ test ผ่านคือสิ่งที่ผู้ใช้ได้รับ
+
+| ฟังก์ชัน | ทำอะไร |
+|---|---|
+| `to_frame(person)` | dict ของคนหนึ่งคน → DataFrame 1 แถวเรียงคอลัมน์เหมือนตอน train, `None`/0 → `NaN` (กฎเดียวกับตอน clean) |
+| `predict(person)` | ความน่าจะเป็น, threshold และ `refer` (ควรส่งตรวจไหม) |
+| `explain(person)` | SHAP explanation ของคลาส 1 พร้อมส่งให้ `shap.plots.waterfall` |
+
+กฎ "0 แปลว่า missing" ต้องใช้ **ทั้งตอน train และตอนทำนาย** — ถ้า app ส่ง 0 เข้า model ตรง ๆ จะได้ผลต่างจากที่ประเมินไว้ (training–serving skew)
+
+## 3. `app.py` — หน้าเว็บด้วย Streamlit
+
+**Streamlit** เปลี่ยน Python script เป็นเว็บได้โดยไม่ต้องเขียน HTML: `st.number_input` คือช่องกรอก, `st.metric` คือตัวเลขใหญ่, `st.pyplot` คือกราฟ — ทุกครั้งที่ผู้ใช้กดปุ่ม script รันใหม่จากบนลงล่าง
+
+ลองรันบนเครื่อง (activate `.venv` ก่อน):
+
+```bash
+streamlit run app/app.py
+```
+
+browser จะเปิด <http://localhost:8501> → กรอกค่า → **ประเมินความเสี่ยง** → เห็นความน่าจะเป็น การตัดสิน และ SHAP waterfall ของคนนั้น
+กด <kbd>Ctrl</kbd>+<kbd>C</kbd> ใน terminal เพื่อหยุด
+
+สิ่งที่ app ทำเพื่อความรับผิดชอบ:
+
+- บอกชัดว่า **ไม่ใช่การวินิจฉัย** และข้อมูลฝึกมาจากประชากรกลุ่มเดียว
+- แสดง threshold และ metric ของ model ใน sidebar (แนวคิดเดียวกับ *model card* [@mitchell2019])
+- ช่องที่ผู้ใช้มักไม่รู้ค่า (`Insulin`, skinfold) เว้นว่างได้ — model เติมด้วย median เหมือนตอน train
+
+## 4. Test อัตโนมัติ
+
+`app/tests/test_model.py` ตรวจสิ่งที่ถ้าพังแล้วผู้ใช้จะไม่รู้ตัว:
+
+- feature ใน metadata ตรงกับโค้ด และ scikit-learn ตรงเวอร์ชันที่ train
+- 0 และช่องว่างกลายเป็น `NaN` จริง · input ไม่ครบต้อง error
+- คนเสี่ยงสูงได้ `refer = True` คนเสี่ยงต่ำได้ `False`
+- SHAP บวกกันได้เท่ากับความน่าจะเป็น
+
+```bash
+python -m pytest app/tests -q
+```
+
+repo มี **GitHub Actions** (`.github/workflows/test.yml`) รัน test ชุดนี้ทุกครั้งที่ push — เปิดแท็บ **Actions** บน GitHub ต้องเห็น ✓ สีเขียวก่อน deploy
+
+## Train ใหม่แล้วต้องทำอะไร
+
+1. `python app/train.py` → ได้ `model/*.joblib` และ `metadata.json` ใหม่
+2. `python -m pytest app/tests -q` ผ่าน
+3. ดู diff ของ `metadata.json` ว่า metric ไม่แย่ลง
+4. commit ทั้งโค้ดและไฟล์ model → push → Render deploy ให้อัตโนมัติ
+
+::: {.callout-tip}
+## ทำไม commit ไฟล์ model แทนที่จะ train บน server
+model ที่ deploy คือ model เดียวกับที่เรา **ประเมินและ test แล้ว** ทุก byte — ถ้า train ใหม่ตอน build อาจได้ model ต่างไปจาก library คนละเวอร์ชัน
+ไฟล์เล็ก (0.2 MB) จึงเก็บใน Git ได้ · model ขนาดใหญ่ในงานจริงมักเก็บใน model registry / object storage แทน
+:::
+
+**ต่อไป:** [Deploy บน Render](render.qmd)

@@ -1,0 +1,103 @@
+---
+title: "แผน lab"
+subtitle: "2 ช่วง × 3 ชั่วโมง · notebook ทั้งหมดอยู่ใน labs/ ของ repo"
+---
+
+ทุก notebook อยู่ในโฟลเดอร์ `labs/` ของ repo ที่ fork มา (ดู [เตรียมเครื่อง](setup/github.qmd)) · เปิดใน VS Code แล้วเลือก kernel `.venv` ทุกครั้ง
+
+## วิธีทำ lab
+
+- รันทีละ cell ด้วย <kbd>Shift</kbd>+<kbd>Enter</kbd> จากบนลงล่าง
+- cell ที่มี `# TODO` ให้เติมโค้ดแทน `___` — hint อยู่ในบรรทัด TODO
+- ใต้ TODO มี cell ตรวจคำตอบ: ✅ = ไปต่อได้ · ❌ = อ่านข้อความแล้วแก้
+- **เฉลย** อยู่ใน `labs/solution/` (มีผลลัพธ์และกราฟครบ) — ลองคิดเองก่อนเปิด
+
+::: {.callout-tip}
+## ตามไม่ทัน?
+ต้นแต่ละหัวข้อมี cell **checkpoint** — uncomment บรรทัด `load_checkpoint(...)` แล้วรัน จะได้ตัวแปรของหัวข้อก่อนหน้าครบ ทำต่อได้ทันที
+:::
+
+## ช่วงที่ 1 · Classification (3 ชม.)
+
+| เวลา | ส่วน | ไฟล์ |
+|---|---|---|
+| 0:00–0:20 | แนะนำคอร์ส · เช็กเครื่อง (`00-check-setup`) · git pull / sync fork | `00-check-setup.ipynb` |
+| 0:20–1:20 | **Lab 1** · EDA → 0 = missing → train/test → baseline → pipeline + logistic regression → metrics → threshold → odds ratio | `lab1-logistic.ipynb` |
+| 1:20–1:30 | พัก | |
+| 1:30–2:30 | **Lab 2** · decision tree + overfitting → Random Forest → CV เทียบ model → GridSearchCV → importance → threshold → test ครั้งเดียว → joblib | `lab2-random-forest.ipynb` |
+| 2:30–3:00 | commit & push notebook ที่ทำเสร็จ · สรุป · ถาม-ตอบ | |
+
+## ช่วงที่ 2 · SHAP และ Deploy (3 ชม.)
+
+| เวลา | ส่วน | ไฟล์ |
+|---|---|---|
+| 0:00–0:50 | **Lab 3** · TreeExplainer → additivity → bar/beeswarm → dependence → waterfall → LinearExplainer → ข้อจำกัด | `lab3-shap.ipynb` |
+| 0:50–1:00 | พัก | |
+| 1:00–2:00 | **Lab 4** · อ่าน `train.py` / `model_utils.py` / `app.py` → รัน app + pytest บนเครื่อง → deploy บน Render → แก้ → push → auto-deploy | [หน้า Lab 4](m4-deploy/render.qmd) |
+| 2:00–2:45 | **Mini-challenge** · โรคหัวใจ (ColumnTransformer + one-hot + SHAP) | `lab5-challenge-heart.ipynb` |
+| 2:45–3:00 | สรุปทั้งคอร์ส · ส่ง URL ของ app | |
+
+## Lab 1 · คัดกรองเบาหวานด้วย Logistic Regression {#lab1}
+
+**อ่านก่อน:** [M1 · Classification สำหรับงานคัดกรอง](m1-classification/index.qmd) · **ข้อมูล:** `data/diabetes.csv` (768 คน)
+
+| หัวข้อ | สิ่งที่ทำ | TODO |
+|---|---|---|
+| 1.1–1.2 | โหลดและสำรวจข้อมูล, สัดส่วนคลาส, histogram แยกคลาส | อ่าน CSV |
+| 1.3 | ค่า 0 ที่แปลว่า missing → `NaN` | `replace(0, np.nan)` |
+| 1.4 | `train_test_split` แบบ stratify | แบ่งข้อมูล |
+| 1.5 | baseline `DummyClassifier` — accuracy 65% แต่ recall 0% | — |
+| 1.6 | pipeline: imputer → scaler → logistic regression | สร้าง + fit pipeline |
+| 1.7 | confusion matrix, classification report, ROC | ROC-AUC |
+| 1.8 | threshold จาก out-of-fold probability ให้ recall ≥ 0.80 | หา threshold |
+| 1.9 | coefficient และ odds ratio | — |
+
+## Lab 2 · Random Forest และการเลือก model {#lab2}
+
+**อ่านก่อน:** [M2 · Decision tree → Random Forest](m2-models/index.qmd)
+
+| หัวข้อ | สิ่งที่ทำ | TODO |
+|---|---|---|
+| 2.1 | วาด decision tree ลึก 3 ชั้น · ความลึก vs train/CV AUC | — |
+| 2.2 | pipeline imputer → Random Forest 300 ต้น | สร้าง + fit |
+| 2.3 | 5-fold CV เทียบ LR กับ RF (ROC-AUC, PR-AUC, recall, precision) | `cross_validate` |
+| 2.4 | GridSearchCV 18 ชุด | `GridSearchCV` |
+| 2.5 | impurity vs permutation importance | — |
+| 2.6 | threshold ของทั้งสอง model · ประเมินบน test ครั้งเดียว | threshold |
+| 2.7 | บันทึก model + metadata ด้วย joblib แล้วโหลดกลับ | `joblib.dump` |
+
+## Lab 3 · อธิบาย model ด้วย SHAP {#lab3}
+
+**อ่านก่อน:** [M3 · SHAP](m3-shap/index.qmd)
+
+| หัวข้อ | สิ่งที่ทำ | TODO |
+|---|---|---|
+| 3.1 | `TreeExplainer` บน Random Forest · ตรวจ additivity | สร้าง explainer |
+| 3.2 | bar + beeswarm | beeswarm |
+| 3.3 | dependence ของ `Glucose` (สีตาม `BMI`) | scatter |
+| 3.4 | waterfall ของคนเสี่ยงสูงสุด และคนที่ใกล้ threshold | หาคนก้ำกึ่ง |
+| 3.5 | `LinearExplainer` บน logistic regression · เทียบอันดับ | — |
+| 3.6 | สิ่งที่ SHAP ไม่ได้บอก · แบบฝึก | — |
+
+## Lab 4 · Deploy บน Render {#lab4}
+
+ทำตามหน้า [Deploy บน Render](m4-deploy/render.qmd) (อ่าน [จาก notebook สู่ web app](m4-deploy/index.qmd) ก่อน) — ไม่มี notebook, ทำงานกับไฟล์ใน `app/`
+
+## Mini-challenge · คัดกรองโรคหัวใจ {#lab5}
+
+**ข้อมูล:** `data/heart.csv` (UCI Heart Disease, Cleveland, 303 คน) [@janosi1989; @detrano1989] · TODO มี hint น้อยกว่า lab ปกติ
+
+| หัวข้อ | สิ่งที่ทำ |
+|---|---|
+| C.1 | แบ่ง train/test |
+| C.2 | `ColumnTransformer`: ตัวเลข → impute + scale · หมวดหมู่ → impute + `OneHotEncoder` |
+| C.3 | เทียบ LR กับ RF ด้วย 5-fold CV |
+| C.4 | SHAP beeswarm บน feature ที่ผ่าน one-hot |
+| คำถาม | ตีความ `cat__cp_4.0` (asymptomatic), วางแผน deploy model ที่สอง, ความเหมาะสมกับผู้ป่วยไทย |
+
+## Data
+
+- เบาหวาน (Lab 1–4): Pima Indians Diabetes Database [@smith1988] — เผยแพร่โดย NIDDK ผ่าน UCI Machine Learning Repository
+- โรคหัวใจ (mini-challenge): [@janosi1989] — CC BY 4.0 · ที่มาทางคลินิก [@detrano1989]
+
+รายละเอียดเพิ่มเติมที่ [ที่มาและเครดิต](credits.qmd)

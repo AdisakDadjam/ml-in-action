@@ -1,0 +1,29 @@
+---
+nocite: |
+  @*
+---
+
+# ที่มาและเครดิต {.unnumbered}
+
+## ตำราอ้างอิง
+
+- James, Witten, Hastie, Tibshirani & Taylor (2023). *An Introduction to Statistical Learning with Applications in Python* (ISLP). Springer — Ch. 4 (classification), 5 (resampling), 8 (tree-based methods)
+- Géron (2022). *Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow*, 3rd ed. O'Reilly — Ch. 2–3, 6–7
+- Molnar (2022). *Interpretable Machine Learning*, 2nd ed. — บท Shapley values / SHAP
+
+เนื้อหาในหน้าเว็บเรียบเรียงใหม่โดยอ้างอิงตำราข้างต้น ไม่ได้คัดลอกข้อความหรือภาพ
+
+## Datasets
+
+| ใช้ใน | ชุดข้อมูล | ที่มา / เครดิต | หมายเหตุ |
+|---|---|---|---|
+| Lab 1–4, web app | Pima Indians Diabetes Database (768 คน, 8 feature) | Smith, Everhart, Dickson, Knowler & Johannes (1988); National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK); เผยแพร่ผ่าน UCI Machine Learning Repository | ผู้หญิงเชื้อสาย Pima อายุ ≥ 21 ปี · ค่า 0 ในบางคอลัมน์หมายถึง missing |
+| Mini-challenge | Heart Disease (Cleveland subset, 303 คน) | Janosi, Steinbrunn, Pfisterer & Detrano (1989), UCI Machine Learning Repository, <https://doi.org/10.24432/C52P4X> | CC BY 4.0 · `target` = 1 เมื่อ `num` > 0 |
+
+ไฟล์ใน `labs/data/` สร้างด้วย `tools/fetch_data.py` (ใส่ชื่อคอลัมน์ และรวม `num` 1–4 เป็นคลาส 1) ไม่ได้แก้ไขค่าข้อมูล
+
+## Software
+
+Python 3.12 · scikit-learn [@pedregosa2011] · SHAP [@lundberg2017; @lundberg2020] · pandas · NumPy · Matplotlib · Streamlit · Quarto · Render
+
+## บรรณานุกรมทั้งหมด {.unnumbered}

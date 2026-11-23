@@ -1,0 +1,95 @@
+---
+title: "SHAP: แบ่งเครดิตให้แต่ละ feature"
+subtitle: "M3 · อธิบาย model ด้วย SHAP"
+---
+
+::: {.callout-note appearance="simple"}
+## ในหน้านี้
+ทำไมต้องอธิบาย model · Shapley value · additivity · กราฟ 4 แบบ (bar, beeswarm, scatter, waterfall) · TreeExplainer vs LinearExplainer · สิ่งที่ SHAP **ไม่ได้** บอก — ลงมือใน [Lab 3](../labs.qmd#lab3)
+:::
+
+## ทำไมต้องอธิบาย
+
+- **ผู้ใช้ (แพทย์/พยาบาล)** อยากรู้ว่า "เสี่ยง 72%" มาจากอะไร ก่อนจะเชื่อและสื่อสารกับผู้ป่วย
+- **ผู้สร้าง model** ต้องตรวจว่า model เรียนสิ่งที่สมเหตุสมผล ไม่ได้อาศัยสิ่งแปลกปลอม (เช่น รหัสโรงพยาบาล, ค่าที่ถูกบันทึกหลังวินิจฉัย)
+- **ผู้กำกับดูแล** ต้องการความโปร่งใสก่อนนำ model ไปใช้กับคนจริง [@molnar2022]
+
+coefficient ของ logistic regression อธิบายได้ระดับหนึ่ง แต่ Random Forest 300 ต้นอ่านตรง ๆ ไม่ได้ — เราต้องการวิธีที่ใช้ได้กับทุก model
+
+## Shapley value: แบ่งเงินรางวัลให้ทีมอย่างยุติธรรม
+
+ลองนึกถึงทีม 8 คนที่ร่วมกันทำคะแนน เราอยากแบ่งเครดิตให้แต่ละคนอย่างยุติธรรม **Shapley value** [@shapley1953] ตอบว่า: ให้ดูว่าเมื่อคนนั้น "เข้าร่วม" ทีมในทุกลำดับที่เป็นไปได้ คะแนนเพิ่มขึ้นเฉลี่ยเท่าไร
+
+**SHAP** [@lundberg2017] นำแนวคิดนี้มาใช้กับการทำนาย: "ทีม" คือ feature และ "คะแนน" คือค่าที่ model ทำนายให้คนหนึ่งคน
+
+$$f(x) = \underbrace{E[f(X)]}_{\text{base value}} + \sum_{j=1}^{8} \phi_j$$
+
+- **base value** = ค่าเฉลี่ยที่ model ทำนาย (ในข้อมูลเบาหวาน ≈ 0.35 คือสัดส่วนผู้ป่วยใน train)
+- $\phi_j$ (SHAP ของ feature $j$) **บวก** = ดันความเสี่ยงของคนนี้ขึ้น · **ลบ** = ดันลง
+- ผลรวมพอดีกับค่าที่ model ทำนาย (**additivity**) — ใน lab เราตรวจได้ว่า `base + ΣSHAP = predict_proba` ทุกคน
+
+## คำนวณอย่างไร
+
+| Explainer | ใช้กับ | หน่วยของ SHAP | หมายเหตุ |
+|---|---|---|---|
+| `shap.TreeExplainer` | tree model (RF, gradient boosting) | ความน่าจะเป็น (สำหรับ RF ของ scikit-learn) | คำนวณแม่นตรงและเร็วด้วย TreeSHAP [@lundberg2020] |
+| `shap.LinearExplainer` | linear / logistic regression | log-odds | $\phi_j = b_j(x_j - \bar{x}_j)$ |
+| `shap.Explainer` / `KernelExplainer` | model อะไรก็ได้ | ตาม output | ช้า ใช้การประมาณ |
+
+ข้อควรระวังกับ **pipeline**: explainer ทำงานกับตัว model (ขั้นสุดท้าย `rf[-1]`) จึงต้องส่งข้อมูลที่ผ่านขั้นก่อนหน้าแล้ว (`rf[:-1].transform(X)`)
+
+```python
+X_imp = pd.DataFrame(rf[:-1].transform(X_test), columns=FEATURES)
+sv = shap.TreeExplainer(rf[-1])(X_imp)[:, :, 1]   # [:, :, 1] = คลาส 1 (เป็นเบาหวาน)
+```
+
+## กราฟ 4 แบบ
+
+| กราฟ | ตอบคำถาม | คำสั่ง |
+|---|---|---|
+| **bar** | โดยรวม model ใช้ feature ไหนมากที่สุด | `shap.plots.bar(sv)` |
+| **beeswarm** | สำคัญแค่ไหน **และ** ไปทางไหน (สีแดง = ค่าสูง) | `shap.plots.beeswarm(sv)` |
+| **scatter (dependence)** | ความเสี่ยงเปลี่ยนตามค่า feature รูปร่างอย่างไร | `shap.plots.scatter(sv[:, "Glucose"], color=sv[:, "BMI"])` |
+| **waterfall** | คนนี้เสี่ยงเพราะอะไร | `shap.plots.waterfall(sv[i])` |
+
+สิ่งที่เห็นใน lab:
+
+- **global:** `Glucose` สำคัญที่สุด ตามด้วย `BMI` และ `Age` — ตรงกับความรู้ทางการแพทย์ และตรงกับ logistic regression (สอง model ต่างกันมากแต่เห็นตรงกัน → มั่นใจขึ้นว่าเป็นสัญญาณจริง)
+- **dependence:** ผลของ `Glucose` **ไม่เป็นเส้นตรง** — ต่ำกว่า ~120 mg/dL ขยับขึ้นช้า ๆ แล้วขึ้นชันช่วง 125–160 แล้วอิ่มตัว Random Forest จับรูปทรงนี้ได้เอง
+- **local:** waterfall ของแต่ละคนคือภาพที่เราใส่ใน web app ให้ผู้ใช้เห็นเหตุผลทุกครั้งที่ทำนาย
+
+## สิ่งที่ SHAP ไม่ได้บอก
+
+1. **อธิบาย model ไม่ใช่ธรรมชาติ** — "BMI ดันความเสี่ยงขึ้น" คือ *model ใช้ BMI แบบนั้น* ไม่ได้พิสูจน์ว่าลด BMI แล้วความเสี่ยงจะลด (นั่นคือคำถามเชิงเหตุผล ต้องใช้การออกแบบการศึกษาอีกแบบ)
+2. **feature ที่สัมพันธ์กันแบ่งเครดิตกัน** — `Glucose` กับ `Insulin` สัมพันธ์กัน เครดิตอาจไหลไปตัวใดตัวหนึ่ง อย่าตีความ feature ที่มี SHAP เล็กว่า "ไม่เกี่ยว"
+3. **ค่าที่ถูกเติม** — คนที่ไม่มีค่า `Insulin` ถูกเติมด้วย median; SHAP อธิบายค่าที่เติม ไม่ใช่ค่าจริงของเขา
+4. **model ผิด คำอธิบายก็ผิด** — SHAP ทำให้ model โปร่งใส แต่ไม่ได้ทำให้ model ถูกต้องหรือยุติธรรม
+
+## อ่านต่อ
+
+- **ลงมือ:** [Lab 3 · อธิบาย model ด้วย SHAP](../labs.qmd#lab3)
+- @molnar2022 บท Shapley values และ SHAP — อธิบายละเอียดพร้อมตัวอย่าง อ่านฟรีออนไลน์
+- @lundberg2017 — บทความที่เสนอ SHAP
+- @lundberg2020 — TreeSHAP และการรวมคำอธิบายรายคนเป็นภาพรวม
+- เอกสาร library: <https://shap.readthedocs.io>
+
+## Quiz
+
+**1. base value = 0.35 และ SHAP ของคนหนึ่งรวมกันได้ +0.40 model ทำนายคนนี้เท่าไร**
+
+- ก. 0.40 · ข. 0.75 · ค. 0.05
+
+**2. ใน beeswarm จุดสีแดงของ `Glucose` อยู่ฝั่งขวา (บวก) หมายความว่า**
+
+- ก. คนที่น้ำตาลสูง model ให้ความเสี่ยงสูงขึ้น
+- ข. น้ำตาลสูงเป็นสาเหตุของเบาหวาน (พิสูจน์แล้วจาก SHAP)
+- ค. `Glucose` มีค่า missing มาก
+
+**3. จะอธิบายผลของคนหนึ่งคนให้แพทย์ดู ควรใช้กราฟใด**
+
+- ก. bar · ข. beeswarm · ค. waterfall
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## เฉลย
+1 ข (additivity: 0.35 + 0.40) · 2 ก (ข ผิด — SHAP อธิบาย model ไม่ใช่เหตุและผล) · 3 ค
+:::

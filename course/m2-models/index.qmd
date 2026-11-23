@@ -1,0 +1,125 @@
+---
+title: "Decision tree → Random Forest"
+subtitle: "M2 · Random Forest และการเลือก model"
+---
+
+::: {.callout-note appearance="simple"}
+## ในหน้านี้
+decision tree และ overfitting · Random Forest (bagging + สุ่ม feature) · cross-validation · GridSearchCV · feature importance · เลือก model สุดท้าย — ลงมือใน [Lab 2](../labs.qmd#lab2)
+:::
+
+## Decision tree: flowchart ที่เรียนจากข้อมูล
+
+**decision tree** ถามคำถามใช่/ไม่ใช่ทีละข้อ เช่น "`Glucose ≤ 127.5`?" โดยเลือกคำถามที่แบ่งแล้วแต่ละฝั่ง **บริสุทธิ์** ที่สุด (คลาสเดียวกันมากที่สุด วัดด้วย Gini impurity) แล้วถามต่อในแต่ละฝั่ง [@james2023, Ch. 8]
+
+- อ่านง่ายเหมือนแนวทางเวชปฏิบัติ — ในข้อมูลเบาหวาน คำถามแรกคือ `Glucose` ตามด้วย `BMI` และ `Age`
+- ไม่ต้อง scale (ถามแค่มากกว่า/น้อยกว่า) และจับความสัมพันธ์ไม่เป็นเส้นตรง / interaction ได้เอง
+
+### ปัญหา: ต้นไม้ลึก = ท่องจำข้อสอบ
+
+ถ้าปล่อยให้ต้นไม้แตกกิ่งจนสุด มันจะจำทุกแถวใน train ได้ (train AUC = 1.0) แต่ทำนายคนใหม่แย่ลง — นี่คือ **overfitting**
+
+| max_depth | train AUC | CV AUC |
+|---|---|---|
+| 2 | 0.80 | 0.74 |
+| 4 | 0.88 | **0.79** |
+| 8 | 0.98 | 0.68 |
+| ไม่จำกัด | 1.00 | 0.65 |
+
+*ผลจาก Lab 2 (5-fold CV บน train)* — ต้นไม้ต้นเดียวยัง **ไม่นิ่ง** (high variance): เปลี่ยนข้อมูลนิดเดียว โครงสร้างเปลี่ยนทั้งต้น
+
+## Random Forest: เฉลี่ยความเห็นของต้นไม้หลายร้อยต้น
+
+**Random Forest** [@breiman2001] สร้างต้นไม้จำนวนมาก (เช่น 300 ต้น) โดยทำให้แต่ละต้น **ต่างกัน** สองทาง:
+
+1. **bootstrap** — แต่ละต้นเรียนจากข้อมูลที่สุ่มแบบใส่คืน (บางแถวซ้ำ บางแถวไม่ได้เลือก)
+2. **สุ่ม feature** — ทุกครั้งที่แตกกิ่ง ดูแค่บาง feature (`max_features`, เช่น √8 ≈ 3 ตัว)
+
+แล้ว **เฉลี่ยความน่าจะเป็น** ของทุกต้น ความผิดพลาดแบบสุ่มของแต่ละต้นหักล้างกัน → model นิ่งและแม่นขึ้น โดยไม่ต้องตัดต้นไม้ให้สั้นมาก
+
+| hyperparameter | ผล |
+|---|---|
+| `n_estimators` | จำนวนต้น — มากขึ้นนิ่งขึ้น (แต่ช้าลง) ไม่ทำให้ overfit |
+| `max_depth` | ความลึกสูงสุด — น้อยลงกัน overfit |
+| `min_samples_leaf` | ใบต้องมีอย่างน้อยกี่แถว — มากขึ้นกัน overfit และทำให้ความน่าจะเป็นเรียบขึ้น |
+| `max_features` | จำนวน feature ที่สุ่มดูต่อการแตกกิ่ง — น้อยลงต้นไม้ยิ่งต่างกัน |
+
+## เทียบ model อย่างเป็นธรรม: cross-validation
+
+ถ้าเทียบ model บน test set แล้วเลือกตัวที่ชนะ test set ก็ไม่ใช่ "ข้อสอบที่ไม่เคยเห็น" อีกต่อไป
+**k-fold cross-validation** แบ่ง train เป็น k ส่วน สลับใช้ k−1 ส่วนสอน 1 ส่วนวัด ครบ k รอบ ได้ทั้ง **ค่าเฉลี่ย** และ **ความแกว่ง** [@james2023, §5.1]
+
+ผล 5-fold CV ใน Lab 2:
+
+| | ROC-AUC | PR-AUC |
+|---|---|---|
+| Logistic regression | 0.843 ± 0.019 | 0.747 ± 0.058 |
+| Random forest | 0.834 ± 0.021 | 0.732 ± 0.046 |
+
+ช่วง ± ซ้อนกัน → **สอง model ไม่ต่างกันจริง** บนข้อมูล 614 แถวที่ความสัมพันธ์หลักค่อนข้างเป็นเส้นตรง model ซับซ้อนกว่าไม่ได้ชนะเสมอ
+
+## Tune ด้วย GridSearchCV
+
+`GridSearchCV` ลองทุกชุด hyperparameter ใน grid ด้วย cross-validation แล้วเลือกชุดที่ดีที่สุด ใน pipeline ระบุชื่อเป็น `<ชื่อขั้น>__<พารามิเตอร์>`:
+
+```python
+param_grid = {
+    "randomforestclassifier__max_depth": [None, 4, 8],
+    "randomforestclassifier__min_samples_leaf": [1, 5, 10],
+    "randomforestclassifier__max_features": ["sqrt", 0.5],
+}
+search = GridSearchCV(rf, param_grid, cv=cv, scoring="roc_auc", n_jobs=-1).fit(X_train, y_train)
+```
+
+ชุดที่ชนะ (`max_depth=4, min_samples_leaf=10`) ได้ CV AUC 0.841 ชนะอันดับ 5 แค่ 0.002 ซึ่งน้อยกว่า SD มาก — การ tune ช่วยได้จำกัด ข้อมูลที่ดีขึ้นและ feature ที่มีความหมายมักให้ผลมากกว่า
+
+## Feature importance: สองแบบ ตอบคนละคำถาม
+
+- **impurity importance** (`feature_importances_`) — ได้ฟรีตอน train แต่ลำเอียงไปทาง feature ที่มีค่าหลากหลาย [@strobl2007]
+- **permutation importance** — สุ่มสลับค่าของ feature หนึ่งบนข้อมูลที่ model ไม่เคยเห็น แล้วดูว่า AUC ตกเท่าไร
+
+ทั้งสองบอกว่า feature **สำคัญแค่ไหน** แต่ไม่บอก **ทิศทาง** และไม่บอกว่า **คนนี้** เสี่ยงเพราะอะไร → [M3 · SHAP](../m3-shap/index.qmd)
+
+## เลือก model สุดท้าย
+
+| เกณฑ์ | Logistic regression | Random forest |
+|---|---|---|
+| ความแม่น (ข้อมูลนี้) | ใกล้กัน | ใกล้กัน |
+| อธิบาย | coefficient อ่านตรง ๆ | ต้องใช้ SHAP |
+| ความสัมพันธ์ไม่เป็นเส้นตรง / interaction | ต้องสร้าง feature เอง | จับได้เอง |
+| ขนาดและความเร็ว | เล็กมาก เร็วมาก | ใหญ่กว่า (~0.2 MB ที่ 300 ต้นลึก 4) |
+
+ถ้าแม่นเท่ากัน **model ที่ง่ายกว่ามักดีกว่า** ในงานจริง — คอร์สนี้ deploy Random Forest เพื่อฝึก TreeSHAP และให้เห็นว่ากระบวนการ deploy ใช้ได้กับ model ทุกแบบ
+ก่อน deploy เลือก threshold ด้วยวิธีเดียวกับ M1 (out-of-fold บน train, recall ≥ 0.80) ได้ ≈ 0.33 แล้วประเมินบน test **ครั้งเดียว**: ROC-AUC 0.80, recall 0.80, precision 0.56
+
+## อ่านต่อ
+
+- **ลงมือ:** [Lab 2 · Random Forest และการเลือก model](../labs.qmd#lab2)
+- @james2023 Ch. 8 (Tree-based methods) · @geron2022 Ch. 6–7
+- @breiman2001 — บทความต้นฉบับของ Random Forest
+- @strobl2007 — ทำไม impurity importance ลำเอียง
+
+## Quiz
+
+**1. ต้นไม้ไม่จำกัดความลึกได้ train AUC 1.00 แต่ CV AUC 0.65 แปลว่า**
+
+- ก. model ดีมาก ควร deploy
+- ข. overfitting — model จำ train ได้แต่ทำนายคนใหม่ไม่ดี
+- ค. ข้อมูล test ผิด
+
+**2. ทำไม Random Forest สุ่ม feature ทุกครั้งที่แตกกิ่ง**
+
+- ก. เพื่อให้ train เร็วขึ้นอย่างเดียว
+- ข. เพื่อให้ต้นไม้แต่ละต้นต่างกัน ความผิดพลาดจึงหักล้างกันได้เมื่อเฉลี่ย
+- ค. เพื่อลบ feature ที่ไม่สำคัญออก
+
+**3. LR ได้ CV AUC 0.843 ± 0.019 และ RF ได้ 0.834 ± 0.021 ข้อสรุปที่เหมาะสมคือ**
+
+- ก. LR ดีกว่าอย่างชัดเจน
+- ข. สอง model ใกล้กัน ความต่างน้อยกว่าความแกว่ง ควรตัดสินด้วยเกณฑ์อื่นประกอบ
+- ค. ต้องเลือกจากผลบน test set
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## เฉลย
+1 ข · 2 ข · 3 ข (เลือกจาก test = test ไม่ใช่ข้อสอบที่ไม่เคยเห็นอีกต่อไป)
+:::

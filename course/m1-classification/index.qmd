@@ -1,0 +1,125 @@
+---
+title: "Classification สำหรับงานคัดกรอง"
+subtitle: "M1 · Classification พื้นฐาน"
+---
+
+::: {.callout-note appearance="simple"}
+## ในหน้านี้
+classification คืออะไร · train/test · data leakage และ pipeline · logistic regression · confusion matrix, recall, precision, ROC-AUC · การเลือก threshold สำหรับงานคัดกรอง — ลงมือใน [Lab 1](../labs.qmd#lab1)
+:::
+
+## โจทย์ของคอร์ส: คัดกรองเบาหวาน
+
+คลินิกตรวจสุขภาพอยากรู้ว่า **ใครควรถูกส่งไปตรวจยืนยันเบาหวาน** (เช่น HbA1c หรือ OGTT) จากค่าที่วัดได้อยู่แล้ว
+เราใช้ข้อมูลผู้หญิงเชื้อสาย Pima 768 คน ที่วัดน้ำตาลในเลือด, BMI, ความดัน, อายุ ฯลฯ และติดตามว่าใครเป็นเบาหวานภายใน 5 ปี [@smith1988]
+
+นี่คือ **supervised learning** แบบ **binary classification**: เรามีตัวอย่างที่รู้คำตอบ (`Outcome` = 0 หรือ 1) ให้ model เรียนรู้ความสัมพันธ์ระหว่าง **feature** (ค่าที่วัด) กับ **label** (คำตอบ) แล้วนำไปทำนายคนใหม่ที่ยังไม่รู้คำตอบ
+
+| | ตัวอย่าง |
+|---|---|
+| feature (X) | `Glucose`, `BMI`, `Age`, `BloodPressure`, … 8 ตัว |
+| label (y) | `Outcome`: 1 = เป็นเบาหวาน (35%), 0 = ไม่เป็น (65%) |
+| สิ่งที่ model ให้ | ความน่าจะเป็น 0–1 ว่าคนนี้อยู่คลาส 1 |
+| สิ่งที่เราตัดสิน | ถ้าความน่าจะเป็น ≥ **threshold** → ส่งตรวจ |
+
+## รู้จักข้อมูลก่อนสร้าง model
+
+ในชุดข้อมูลนี้ `Glucose = 0` หรือ `BMI = 0` เป็นไปไม่ได้ทางสรีรวิทยา — มันคือ **ค่าที่ไม่ได้บันทึก** (missing) ที่ถูกเก็บเป็น 0
+`Insulin` หายไปถึง 374 จาก 768 คน (49%) ถ้าปล่อยไว้ model จะเรียนว่า "insulin = 0" เป็นเรื่องปกติ
+
+ขั้นแรกของทุกโปรเจกต์จึงไม่ใช่การเลือก algorithm แต่คือการถามว่า **ตัวเลขแต่ละตัวหมายถึงอะไรจริง ๆ** ใน lab เราแปลง 0 → `NaN` แล้วเติมค่าด้วย median
+
+## Train / test และ data leakage
+
+- **train set (80%)** ใช้สอน model และตัดสินใจทุกอย่าง (เลือก model, เลือก threshold)
+- **test set (20%)** เก็บไว้วัดผล **ครั้งเดียวตอนท้าย** เหมือนข้อสอบที่ห้ามดูก่อน
+- `stratify=y` รักษาสัดส่วนคลาส 1 ให้เท่ากันทั้งสองชุด
+
+**data leakage** คือเมื่อข้อมูลจาก test (หรือจากอนาคต) รั่วเข้าไปตอน train ทำให้ผลดูดีเกินจริง [@kaufman2012] เช่น คำนวณ median สำหรับเติม missing จากข้อมูลทั้งหมดก่อนแบ่ง หรือเลือก threshold โดยดูผลบน test
+
+ทางแก้คือ **Pipeline**: ต่อทุกขั้นตอนเป็นก้อนเดียว `fit` จาก train เท่านั้น แล้วใช้ก้อนเดียวกันนั้นทำนายทุกที่ ตั้งแต่ cross-validation จนถึง web app [@pedregosa2011]
+
+```python
+logreg = make_pipeline(
+    SimpleImputer(strategy="median"),   # เติม NaN ด้วย median ของ train
+    StandardScaler(),                   # ทุก feature mean = 0, SD = 1
+    LogisticRegression(max_iter=1000),
+)
+```
+
+## Logistic regression
+
+**logistic regression** รวม feature แบบถ่วงน้ำหนัก $z = b_0 + b_1x_1 + \dots + b_8x_8$ แล้วแปลงเป็นความน่าจะเป็นด้วย **sigmoid** [@james2023, Ch. 4]
+
+$$p(\text{diabetes}) = \frac{1}{1 + e^{-z}}$$
+
+ข้อดีคือ **อ่านได้**: เมื่อ scale feature แล้ว $e^{b_j}$ คือ **odds ratio** ต่อการเพิ่ม feature นั้น 1 SD — ใน lab, `Glucose` มี odds ratio ≈ 3.3 และ `BMI` ≈ 2.0 คือสองปัจจัยที่สำคัญที่สุด
+ข้อจำกัดคือสมมติว่าแต่ละ feature ส่งผลแบบเส้นตรง (ใน log-odds) และไม่มี interaction ถ้าเราไม่สร้างเอง
+
+## วัดผล: ทำไม accuracy หลอกเรา
+
+model ที่ตอบว่า "ไม่เป็น" ให้ทุกคนได้ accuracy 65% ทันที แต่ **ไม่เจอผู้ป่วยเลยสักคน** — ต้องแยกดูความผิดพลาดแต่ละแบบด้วย **confusion matrix**
+
+| | ทำนาย 0 | ทำนาย 1 |
+|---|---|---|
+| **จริง 0** | TN | **FP** — นัดคนปกติมาตรวจเพิ่ม (เสียเวลา/ค่าตรวจ) |
+| **จริง 1** | **FN** — พลาดผู้ป่วย (ไม่ได้รักษาแต่เนิ่น ๆ) | TP |
+
+- **recall (sensitivity)** = TP / (TP + FN) — ในผู้ป่วยทั้งหมด เราเจอกี่ %
+- **precision (PPV)** = TP / (TP + FP) — ในคนที่เราบอกว่าเสี่ยง เป็นจริงกี่ %
+- **ROC-AUC** — โอกาสที่ model ให้คะแนนผู้ป่วยสุ่มหนึ่งคนสูงกว่าคนปกติสุ่มหนึ่งคน ไม่ขึ้นกับ threshold (0.5 = เดา, 1.0 = สมบูรณ์) [@fawcett2006]
+- **PR-AUC (average precision)** — พื้นที่ใต้กราฟ precision–recall ไวต่อคลาสที่มีน้อยกว่า ROC-AUC [@saito2015]
+
+## Threshold: การตัดสินใจ ไม่ใช่ค่าคงที่
+
+`predict()` ใช้ threshold 0.5 ให้อัตโนมัติ — ใน lab ได้ recall แค่ 0.50 คือ **พลาดผู้ป่วยครึ่งหนึ่ง** ซึ่งรับไม่ได้สำหรับงานคัดกรอง
+
+งานคัดกรองยอมนัดคนปกติมาตรวจเพิ่ม (FP) เพื่อไม่ให้พลาดผู้ป่วย (FN) เราจึงตั้งเป้า **recall ≥ 0.80** แล้วเลือก threshold ที่ precision สูงสุดภายใต้เงื่อนไขนั้น
+
+ห้ามเลือก threshold จาก test set — ใน lab เราใช้ `cross_val_predict` สร้างความน่าจะเป็นแบบ **out-of-fold** บน train (แต่ละคนถูกทำนายโดย model ที่ไม่เคยเห็นคนนั้น) แล้วเลือก threshold จากตรงนั้น ได้ ≈ 0.28
+
+| threshold | recall | precision | นัดตรวจ (จาก 154 คน) |
+|---|---|---|---|
+| 0.50 (default) | 0.50 | 0.60 | 45 |
+| 0.28 (คัดกรอง) | 0.83 | 0.58 | 78 |
+
+*ผลบน test set ของ Lab 1*
+
+## อ่านต่อ
+
+- **ลงมือ:** [Lab 1 · คัดกรองเบาหวานด้วย Logistic Regression](../labs.qmd#lab1)
+- @james2023 Ch. 4 (Classification) และ §5.1 (Cross-validation)
+- @geron2022 Ch. 3 (Classification: precision/recall trade-off)
+- @saito2015 — ทำไม precision–recall บอกได้มากกว่า ROC เมื่อคลาสไม่สมดุล
+- @kaufman2012 — รูปแบบต่าง ๆ ของ data leakage และวิธีป้องกัน
+
+## Quiz
+
+**1. model คัดกรองตัวหนึ่งได้ accuracy 90% บนข้อมูลที่มีผู้ป่วย 10% ข้อสรุปที่ถูกต้องคือ**
+
+- ก. model ดีมาก นำไปใช้ได้
+- ข. ยังสรุปไม่ได้ — model ที่ตอบ "ไม่ป่วย" ทุกคนก็ได้ 90% ต้องดู recall/precision
+- ค. ต้องเพิ่ม threshold ให้สูงขึ้น
+
+**2. ข้อใดเป็น data leakage**
+
+- ก. ใช้ `stratify=y` ตอนแบ่ง train/test
+- ข. คำนวณ median เพื่อเติม missing จากข้อมูลทั้ง 768 แถวก่อนแบ่ง train/test
+- ค. ใช้ `random_state=42`
+
+**3. ลด threshold จาก 0.5 เป็น 0.28 จะเกิดอะไรขึ้น**
+
+- ก. recall เพิ่ม, precision มักลด, นัดคนมาตรวจมากขึ้น
+- ข. recall ลด, precision เพิ่ม
+- ค. ROC-AUC เพิ่มขึ้น
+
+**4. coefficient (หลัง scale) ของ `Glucose` = 1.18 แปลว่า**
+
+- ก. น้ำตาลเพิ่ม 1 mg/dL ความเสี่ยงเพิ่ม 1.18%
+- ข. น้ำตาลเพิ่ม 1 SD, odds ของการเป็นเบาหวานคูณ e^1.18 ≈ 3.3 เท่า (feature อื่นคงที่)
+- ค. น้ำตาลเป็นสาเหตุของเบาหวาน 1.18 เท่า
+
+::: {.callout-tip collapse="true" appearance="simple"}
+## เฉลย
+1 ข · 2 ข (median ต้องคำนวณจาก train เท่านั้น — pipeline ทำให้อัตโนมัติ) · 3 ก (ROC-AUC ไม่ขึ้นกับ threshold) · 4 ข (และเป็นความสัมพันธ์ใน model ไม่ใช่เหตุและผล)
+:::

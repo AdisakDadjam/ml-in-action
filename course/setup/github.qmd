@@ -1,0 +1,167 @@
+---
+title: "GitHub: fork, clone, environment"
+subtitle: "S3 · จาก repo ของคอร์ส สู่โปรเจกต์ของเราเองที่พร้อม deploy"
+---
+
+::: {.callout-note appearance="simple"}
+## ในหน้านี้
+สมัคร GitHub และ Render → **fork** repo ของคอร์สมาเป็นของเรา → **clone** ลงเครื่องด้วย VS Code → สร้าง **virtual environment** ติดตั้ง library → รัน notebook ตรวจเครื่อง → **commit & push** ครั้งแรก
+:::
+
+## ทำไมต้อง GitHub
+
+ตอน deploy, Render จะ **ดึงโค้ดจาก GitHub repo ของเรา** ไป build และรันบน server ทุกครั้งที่เรา `push` โค้ดใหม่ Render จะ deploy ให้ใหม่อัตโนมัติ
+ดังนั้นตั้งแต่วันแรกเราจะทำงานใน repo ของตัวเอง
+
+| คำ | ความหมาย |
+|---|---|
+| **repository (repo)** | โฟลเดอร์โปรเจกต์ที่ Git เก็บประวัติทุกการแก้ไข |
+| **fork** | สำเนา repo ของคนอื่นมาไว้ในบัญชีเรา แก้ได้อิสระ |
+| **clone** | ดาวน์โหลด repo จาก GitHub ลงเครื่อง (พร้อมประวัติ) |
+| **commit** | บันทึก "จุด save" ของไฟล์ที่แก้ พร้อมข้อความว่าแก้อะไร |
+| **push** / **pull** | ส่ง commit จากเครื่องขึ้น GitHub / ดึงของใหม่จาก GitHub ลงเครื่อง |
+
+## 1. สมัครบัญชี
+
+1. **GitHub** — <https://github.com/signup> (ใช้อีเมลเดียวกับที่ตั้งใน `git config`) · เปิด two-factor authentication ตามที่ GitHub แนะนำ
+2. **Render** — <https://dashboard.render.com/register> → เลือก **GitHub** เพื่อสมัครด้วยบัญชี GitHub (ไม่ต้องใช้บัตรเครดิตสำหรับ plan Free)
+
+## 2. Fork repo ของคอร์ส
+
+1. เปิด <https://github.com/Ratchainant/ml-in-action>
+2. มุมขวาบนกด **Fork** → Owner เป็นบัญชีเรา → **Create fork**
+3. ได้ repo ใหม่ที่ `https://github.com/<ชื่อเรา>/ml-in-action` — จากนี้ทำงานใน repo นี้
+
+## 3. Clone ลงเครื่องด้วย VS Code
+
+1. เปิด VS Code → <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> → **Git: Clone** → **Clone from GitHub**
+2. ครั้งแรก VS Code จะขอ sign in GitHub ผ่าน browser → **Authorize** แล้วกลับมาที่ VS Code
+3. เลือก `<ชื่อเรา>/ml-in-action` → เลือกโฟลเดอร์ปลายทาง (Windows แนะนำ `C:\work`, macOS แนะนำ `~/work`)
+4. กด **Open** เมื่อ VS Code ถาม · ถ้าถาม *Do you trust the authors?* กด **Yes, I trust**
+
+::: {.callout-tip collapse="true"}
+## ชอบใช้ terminal มากกว่า?
+```bash
+git clone https://github.com/<ชื่อเรา>/ml-in-action.git
+```
+```bash
+code ml-in-action
+```
+ครั้งแรกที่ push, Git จะเปิด browser ให้ login GitHub (Windows ใช้ Git Credential Manager ที่มากับ Git; macOS ใช้ Keychain)
+:::
+
+โครงสร้างที่ได้:
+
+```text
+ml-in-action/
+├── labs/                  ← notebook ที่เราจะทำในคลาส
+│   ├── 00-check-setup.ipynb
+│   ├── lab1-logistic.ipynb … lab5-challenge-heart.ipynb
+│   ├── data/              diabetes.csv, heart.csv
+│   ├── solution/          เฉลย (มีผลลัพธ์ครบ)
+│   └── mlia.py            ตัวช่วย ✅/❌ และ checkpoint
+├── app/                   ← web app ที่จะ deploy (M4)
+├── course/                ← เว็บคอร์สนี้ (Quarto)
+├── requirements.txt       library สำหรับ lab
+└── render.yaml            ค่าตั้งของ Render
+```
+
+## 4. สร้าง virtual environment และติดตั้ง library
+
+**virtual environment (`.venv`)** คือ Python แยกเฉพาะโปรเจกต์นี้ library ที่ติดตั้งจะไม่ปนกับโปรเจกต์อื่น และระบุเวอร์ชันตรงกันทุกเครื่องผ่าน `requirements.txt`
+
+ใน VS Code เปิด *Terminal ▸ New Terminal* (อยู่ที่โฟลเดอร์ `ml-in-action` แล้ว) พิมพ์ทีละบรรทัด:
+
+::: {.panel-tabset .os-tabs}
+## Windows (PowerShell)
+
+```powershell
+py -3.12 -m venv .venv
+```
+
+```powershell
+.venv\Scripts\activate
+```
+
+```powershell
+python -m pip install --upgrade pip
+```
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+## macOS (Terminal)
+
+```bash
+python3.12 -m venv .venv
+```
+
+```bash
+source .venv/bin/activate
+```
+
+```bash
+python -m pip install --upgrade pip
+```
+
+```bash
+python -m pip install -r requirements.txt
+```
+:::
+
+หลัง activate จะเห็น `(.venv)` นำหน้าบรรทัดคำสั่ง · การติดตั้งใช้เวลา 2–5 นาที
+
+::: {.callout-note}
+## ไม่ต้อง commit `.venv`
+ไฟล์ `.gitignore` ของ repo บอก Git ให้ข้าม `.venv/` แล้ว — environment สร้างใหม่ได้เสมอจาก `requirements.txt` สิ่งที่ต้อง commit คือ **รายการ library** ไม่ใช่ตัว library
+:::
+
+## 5. เลือก interpreter และรัน notebook ตรวจเครื่อง
+
+1. <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> → **Python: Select Interpreter** → เลือก `.venv` (Python 3.12 … `('.venv': venv)`)
+2. เปิด `labs/00-check-setup.ipynb`
+3. มุมขวาบนกด **Select Kernel** → **Python Environments** → `.venv`
+4. กด **Run All** — ทุกบรรทัดต้องขึ้น ✅ และจบด้วย 🎉 พร้อมเรียนแล้ว!
+
+ถ้ามี ❌: อ่านข้อความในวงเล็บ ส่วนใหญ่คือเลือก kernel ผิดตัว (ไม่ใช่ `.venv`) หรือยังไม่ได้ `pip install -r requirements.txt`
+
+## 6. Commit & push ครั้งแรก {#commit-push}
+
+ลองแก้ไฟล์ แล้วส่งขึ้น GitHub เพื่อยืนยันว่าทุกอย่างต่อกันครบ:
+
+1. เปิดไฟล์ `README.md` เพิ่มบรรทัดล่างสุด เช่น `Forked by <ชื่อเรา> — เริ่มเรียน <วันที่>` แล้ว save
+2. แถบซ้ายกดไอคอน **Source Control** (<kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd>) จะเห็น `README.md` ในรายการ *Changes*
+3. กด **+** ข้างไฟล์ (stage) → พิมพ์ข้อความในช่อง Message เช่น `Add my name to README` → กด **Commit**
+4. กด **Sync Changes** (หรือ **Publish**) เพื่อ push
+5. เปิดหน้า repo ของเราบน GitHub — ต้องเห็นบรรทัดใหม่ใน README
+
+เทียบกับคำสั่ง terminal:
+
+```bash
+git add README.md
+```
+
+```bash
+git commit -m "Add my name to README"
+```
+
+```bash
+git push
+```
+
+::: {.callout-tip}
+## ผู้สอนอัปเดตเนื้อหาหลัง fork แล้ว?
+บนหน้า repo ของเรากด **Sync fork ▸ Update branch** แล้วใน VS Code กด **Sync Changes** (หรือ `git pull`) — ทำก่อนแก้ไฟล์ของตัวเองจะไม่มี conflict
+:::
+
+## Checklist ก่อนวันอบรม
+
+- [ ] `py -3.12 --version` / `python3.12 --version` ได้ 3.12.x
+- [ ] VS Code มี extension Python + Jupyter
+- [ ] fork + clone แล้ว, มี `.venv` และติดตั้ง `requirements.txt` ครบ
+- [ ] `labs/00-check-setup.ipynb` ขึ้น ✅ ทุกบรรทัด
+- [ ] push commit แรกขึ้น GitHub ได้
+- [ ] มีบัญชี Render ที่ login ด้วย GitHub
+
+**ต่อไป:** [M1 · Classification สำหรับงานคัดกรอง](../m1-classification/index.qmd)

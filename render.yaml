@@ -1,0 +1,16 @@
+# Render Blueprint — New ▸ Blueprint ▸ connect this repo, or create the Web Service by hand with the same values
+# (course page: course/m4-deploy/render.qmd).
+services:
+  - type: web
+    name: diabetes-screening
+    runtime: python
+    plan: free
+    region: singapore         # closest Render region to Thailand
+    rootDir: app
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+    healthCheckPath: /_stcore/health
+    autoDeploy: true            # every push to the default branch redeploys
+    envVars:
+      - key: PYTHON_VERSION     # same Python as the training environment
+        value: 3.12.10

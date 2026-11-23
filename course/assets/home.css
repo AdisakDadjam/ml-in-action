@@ -1,0 +1,97 @@
+/* Course home (index.qmd) — adapted from the INT3 course site. Scoped to body.course-home. */
+.course-home #title-block-header { display: none; }
+.course-home main section.level1 > h1, .course-home main > h1.title { display: none; }
+.course-home main { --home-accent: #1f6f8b; --home-ink: #1d2a31; --home-muted: #5c6b73; --home-line: #dfe7eb;
+                    --home-soft: #f3f8fa; --home-lab: #8a5a12; --home-lab-bg: #fbf2e3; }
+
+/* Hero */
+.course-home .hero { padding: 2.2rem 1.6rem 1.8rem; margin: .5rem 0 1.6rem; border-radius: 18px;
+  background: linear-gradient(135deg, #e4f1f5 0%, #eef3ea 100%); border: 1px solid var(--home-line); }
+.course-home .hero p { margin-bottom: .2rem; }
+  padding: .35rem .85rem .35rem .4rem; margin: 0 0 .9rem; border-radius: 14px; background: #fff;
+  border: 1px solid #f3c7c7; color: var(--home-ink); text-decoration: none; font-size: .92rem; }
+  border-radius: 6px; background: #ff0033; color: #fff; font-size: .7rem; }
+.course-home .hero .hero-title { display: block; font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-weight: 600; line-height: 1.2;
+  color: var(--home-ink); margin: 0 0 .35rem; }
+.course-home .hero .hero-sub { display: block; font-size: 1.05rem; color: var(--home-accent); font-weight: 600; margin-bottom: 1rem; }
+.course-home .hero .lead { display: block; font-size: 1.05rem; color: #34434b; max-width: 46rem; }
+.course-home .hero .lead { margin-bottom: 1rem; }
+.course-home .hero .byline { display: block; font-size: .92rem; color: #34434b; margin: .2rem 0 1.1rem; }
+.course-home .hero .byline p { margin: 0; }
+.course-home .hero .byline .affs { display: flex; flex-wrap: wrap; gap: .5rem 1.6rem; margin-top: .35rem;
+  font-size: .86rem; line-height: 1.45; color: var(--home-muted); }
+.course-home .hero .byline .aff { padding-left: .65rem; border-left: 2px solid var(--home-accent); }
+.course-home .hero .cta a { display: inline-block; margin: 0 .45rem .5rem 0; padding: .5rem 1rem; border-radius: 999px;
+  text-decoration: none; font-weight: 600; font-size: .95rem; border: 1px solid var(--home-accent); }
+.course-home .hero .cta a:first-child { background: var(--home-accent); color: #fff; }
+.course-home .hero .cta a:not(:first-child) { background: #fff; color: var(--home-accent); }
+.course-home .hero .cta a:hover { filter: brightness(.95); }
+
+/* Stats */
+.course-home .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: .7rem; margin: 0 0 2rem; }
+.course-home .stat { padding: .8rem .9rem; border: 1px solid var(--home-line); border-radius: 12px; background: #fff; }
+.course-home .stat p { margin: 0; }
+.course-home .stat strong { display: block; font-size: 1.5rem; color: var(--home-ink); line-height: 1.2; }
+.course-home .stat span { font-size: .85rem; color: var(--home-muted); }
+
+/* Card grids */
+.course-home .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin: .6rem 0 1.4rem; }
+.course-home .card-item { padding: 1rem 1.1rem; border: 1px solid var(--home-line); border-radius: 12px; background: #fff; }
+.course-home .card-item p { margin: 0 0 .35rem; color: #34434b; font-size: .95rem; }
+.course-home .card-item > p:first-child { font-size: 1.6rem; margin-bottom: .3rem; }
+.course-home .card-item > p:last-child { margin-bottom: 0; }
+.course-home .card-item strong { color: var(--home-ink); }
+.course-home .notice { padding: .9rem 1.1rem; margin: 0 0 1.8rem; border: 1px solid var(--home-line);
+  border-left: 4px solid var(--home-accent); border-radius: 12px; background: var(--home-soft); }
+.course-home .notice p { margin: 0 0 .3rem; }
+.course-home .notice p:last-child { margin: 0; }
+.course-home .th-note { color: #34434b; font-size: .92rem; }
+
+/* Modules + clips */
+.course-home .modules { display: grid; grid-template-columns: repeat(2, 1fr); gap: .9rem; margin: .8rem 0 1.6rem; }
+.course-home .module { border: 1px solid var(--home-line); border-radius: 14px; padding: .9rem 1rem .6rem; background: #fff; }
+.course-home .module:first-child { grid-column: 1 / -1; }
+.course-home .module-head { margin: 0 0 .5rem; }
+.course-home .module-head p { margin: 0; }
+.course-home .mtag { display: inline-block; min-width: 2.3rem; text-align: center; padding: .05rem .45rem; margin-right: .35rem;
+  border-radius: 6px; background: var(--home-accent); color: #fff; font-size: .8rem; font-weight: 600; }
+.course-home .module-head strong { color: var(--home-ink); }
+.course-home .module-head .mgoal { display: block; font-size: .85rem; color: var(--home-muted); margin-top: .2rem; }
+.course-home .ep { display: flex; gap: .6rem; align-items: baseline; padding: .45rem 0; border-top: 1px dashed var(--home-line); }
+.course-home .ep p { margin: 0; flex: 1; font-size: .95rem; }
+.course-home .ep p:first-child { flex: 0 0 3.2rem; }
+.course-home .ep .epno { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--home-accent); font-size: .85rem; }
+.course-home .ep a { font-weight: 600; }
+.course-home .ep .epmeta { display: block; font-size: .8rem; color: var(--home-muted); }
+.course-home .ep .epmeta a { font-weight: 600; }
+.course-home .ep.lab { background: var(--home-lab-bg); margin: .3rem -1rem -.6rem; padding: .55rem 1rem .6rem; border-top: 0;
+  border-radius: 0 0 14px 14px; }
+.course-home .ep.lab .epno { color: var(--home-lab); }
+  margin-left: .35rem; border-radius: 5px; background: #ff0033; color: #fff; font-size: .6rem; font-weight: 400;
+  text-decoration: none; vertical-align: .1rem; }
+
+@media (max-width: 900px) {
+  .course-home .modules, .course-home .cards { grid-template-columns: 1fr; }
+  .course-home .stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .course-home .hero { padding: 1.5rem 1.1rem 1.2rem; }
+}
+
+  box-shadow: 0 6px 20px rgba(30, 40, 60, .14); background: #000; }
+/* lab rows: the three notebooks one per line, numbered (instructor 2026-11-22) */
+.course-home .ep .labsteps { display: block; margin-top: .35rem; font-size: .85rem; }
+.course-home .ep .labstep { display: flex; align-items: baseline; gap: .45rem; padding: .12rem 0; }
+.course-home .ep .labstep .n { flex: 0 0 1.25rem; height: 1.25rem; line-height: 1.25rem; text-align: center; border-radius: 50%;
+  background: var(--home-lab); color: #fff; font-size: .7rem; font-weight: 700; }
+
+/* Dark mode (Quarto adds body.quarto-dark when the device, or the sidebar toggle, picks dark; 2026-11-22) */
+body.quarto-dark.course-home main { --home-accent: #5cb4d3; --home-ink: #e8eef1; --home-muted: #9cadb5; --home-line: #36444b;
+  --home-soft: #1d2b31; --home-lab: #e3a95c; --home-lab-bg: #2d2619; --home-card: #262d31; --home-text: #c8d3d8; }
+body.quarto-dark.course-home .hero { background: linear-gradient(135deg, #17323c 0%, #1f2b20 100%); }
+body.quarto-dark.course-home .stat, body.quarto-dark.course-home .card-item,
+body.quarto-dark.course-home .module, body.quarto-dark.course-home .hero .cta a:not(:first-child) { background: var(--home-card); }
+body.quarto-dark.course-home .hero .lead, body.quarto-dark.course-home .hero .byline,
+body.quarto-dark.course-home .card-item p, body.quarto-dark.course-home .th-note { color: var(--home-text); }
+body.quarto-dark.course-home .mtag, body.quarto-dark.course-home .hero .cta a:first-child,
+body.quarto-dark.course-home .ep .labstep .n { color: #0f1d23; }

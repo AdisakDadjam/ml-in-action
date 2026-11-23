@@ -1,0 +1,90 @@
+---
+title: "เตรียมเครื่อง: macOS"
+subtitle: "S2 · Python 3.12 · VS Code · Git"
+---
+
+::: {.callout-important}
+## ทำให้เสร็จก่อนวันอบรมอย่างน้อย 1 วัน
+ใช้เวลาราว 30–45 นาที · ใช้ได้ทั้ง Mac ชิป Apple (M1–M4) และ Intel · ใช้ Windows? ไปหน้า [Windows](windows.qmd)
+:::
+
+## สิ่งที่จะติดตั้ง
+
+| โปรแกรม | ใช้ทำอะไร |
+|---|---|
+| **Git** (มากับ Command Line Tools ของ Apple) | เก็บประวัติโค้ดและส่งขึ้น GitHub |
+| **Python 3.12** | ภาษาที่ใช้สร้าง model — macOS มี `python3` ติดมา แต่เป็นรุ่นของระบบ **ไม่ใช้ตัวนั้น** |
+| **VS Code** + extension **Python**, **Jupyter** | เขียนโค้ด เปิด notebook และใช้ Git ผ่านหน้าจอ |
+
+เปิด **Terminal**: กด <kbd>⌘</kbd>+<kbd>Space</kbd> พิมพ์ `Terminal` แล้ว <kbd>Return</kbd>
+
+## 1. Git (Command Line Tools)
+
+```bash
+xcode-select --install
+```
+
+จะมีหน้าต่างขึ้นมา กด **Install** แล้ว **Agree** (ดาวน์โหลดราว 5–15 นาที) — ถ้าขึ้นว่า *already installed* แปลว่ามีแล้ว ข้ามได้
+
+## 2. Python 3.12
+
+1. เปิด <https://www.python.org/downloads/release/python-31210/> เลื่อนลงไปที่ **Files** → **macOS 64-bit universal2 installer**
+2. เปิดไฟล์ `.pkg` แล้วกด Continue / Agree / Install จนจบ
+3. หน้าต่าง Finder ของโฟลเดอร์ *Python 3.12* จะเปิดขึ้น → ดับเบิลคลิก **Install Certificates.command** (ให้ Python ดาวน์โหลดผ่าน HTTPS ได้)
+
+::: {.callout-tip collapse="true"}
+## ใช้ Homebrew อยู่แล้ว? (ทางเลือก)
+```bash
+brew install python@3.12
+```
+แล้วใช้คำสั่ง `python3.12` เหมือนกัน — ไม่ต้องทำ Install Certificates
+:::
+
+## 3. VS Code
+
+1. ดาวน์โหลดจาก <https://code.visualstudio.com/> → **Download for Mac** (Universal)
+2. แตก zip แล้ว **ลาก Visual Studio Code ไปไว้ใน Applications** (ถ้าเปิดจาก Downloads ตรง ๆ จะอัปเดตตัวเองไม่ได้)
+3. เปิด VS Code → กด <kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> พิมพ์ `shell command` → เลือก **Shell Command: Install 'code' command in PATH**
+4. แถบซ้ายกด **Extensions** (<kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd>) → ติดตั้ง **Python** และ **Jupyter** (ผู้พัฒนา Microsoft ทั้งคู่)
+
+## ตรวจสอบ {#check}
+
+ใน VS Code เปิด *Terminal ▸ New Terminal* (<kbd>⌃</kbd>+<kbd>`</kbd>) แล้วพิมพ์:
+
+```bash
+python3.12 --version
+```
+
+```bash
+git --version
+```
+
+```bash
+code --version
+```
+
+ต้องได้ `Python 3.12.x`, `git version 2.x` และเลขเวอร์ชันของ VS Code ครบ
+
+## ตั้งชื่อให้ Git (ครั้งเดียวต่อเครื่อง)
+
+ใช้ชื่อและอีเมลเดียวกับบัญชี GitHub ที่จะสมัครในหน้าถัดไป:
+
+```bash
+git config --global user.name "Your Name"
+```
+
+```bash
+git config --global user.email "you@example.com"
+```
+
+## ปัญหาที่พบบ่อยบน macOS
+
+| อาการ | วิธีแก้ |
+|---|---|
+| `python3.12: command not found` | ปิดแล้วเปิด Terminal ใหม่ · ถ้ายังไม่เจอ installer อาจยังไม่จบ ลองเรียกตรง ๆ `/Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12 --version` |
+| `pip install` ขึ้น `SSL: CERTIFICATE_VERIFY_FAILED` | ยังไม่ได้รัน **Install Certificates.command** (ใน Applications ▸ Python 3.12) |
+| `xcrun: error: invalid active developer path` | Command Line Tools หายหลังอัปเดต macOS → รัน `xcode-select --install` อีกครั้ง |
+| `code: command not found` | ทำข้อ 3.3 (Install 'code' command in PATH) แล้วเปิด Terminal ใหม่ |
+| Mac ชิป Apple: library บางตัวติดตั้งไม่ได้ | ตรวจว่าใช้ Python จาก python.org/Homebrew ไม่ใช่ Python ที่รันผ่าน Rosetta (`python3.12 -c "import platform; print(platform.machine())"` ควรได้ `arm64`) |
+
+**ต่อไป:** [GitHub: fork, clone, environment](github.qmd)
