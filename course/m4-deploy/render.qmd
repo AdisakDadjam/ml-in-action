@@ -171,20 +171,44 @@ streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headl
 
 ## 8. ดู log ระหว่าง deploy
 
-หน้า **Logs** จะแสดงทุกขั้น — อ่านเป็นเรื่องปกติ ไม่ต้องกลัว:
+กด Deploy แล้ว Render พาไปหน้า **Deploys** ของ service ที่มีสถานะ ระยะเวลา และ log ทุกบรรทัด — อ่านเป็นเรื่องปกติ ไม่ต้องกลัว ตัวอย่างจาก deploy จริงของคอร์สนี้ (ตัดบางบรรทัด):
 
 ```text
 ==> Cloning from https://github.com/<ชื่อเรา>/ml-in-action
 ==> Using Python version 3.12.10 via environment variable PYTHON_VERSION
 ==> Running build command 'pip install -r requirements.txt'...
 Successfully installed ... scikit-learn-1.7.2 shap-0.49.1 streamlit-1.51.0 ...
+==> Uploading build...
+==> Uploaded in 9.2s. Compression took 7.1s
 ==> Build successful 🎉
-==> Running 'streamlit run app.py --server.port 10000 --server.address 0.0.0.0 --server.headless true'
-  You can now view your Streamlit app in your browser.
+==> Deploying...
+==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+==> Running 'streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true'
+    Collecting usage statistics. To deactivate, set browser.gatherUsageStats to false.
+    You can now view your Streamlit app in your browser.
+    URL: http://0.0.0.0:10000
 ==> Your service is live 🎉
+==> Available at your primary URL https://diabetes-screening-xxxx.onrender.com
 ```
 
-build ครั้งแรกใช้ราว 3–6 นาที → เมื่อขึ้น **Live** กดลิงก์ `https://<name>.onrender.com` ที่มุมบนซ้าย → ลองกรอกค่าแล้วกด **ประเมินความเสี่ยง**
+| บรรทัด | ความหมาย |
+|---|---|
+| `Cloning from …` | Render ดึงโค้ดล่าสุดของ branch `main` มาจาก GitHub |
+| `Using Python version 3.12.10 …` | env var `PYTHON_VERSION` ทำงาน |
+| `Running build command …` / `Successfully installed …` | ขั้น **build** ติดตั้ง library ตาม `app/requirements.txt` — เช็กว่าเลขเวอร์ชันตรงกับที่ pin |
+| `Uploading build…` / `Build successful` | Render เก็บผล build ไว้เป็นก้อนเดียว (ครั้งหน้าถ้า requirements ไม่เปลี่ยนจะเร็วขึ้นเพราะใช้ cache) |
+| `Setting WEB_CONCURRENCY=1 …` | ตัวแปรสำหรับ server แบบหลาย worker (เช่น gunicorn) — Streamlit ไม่ใช้ ข้ามได้ |
+| `Running 'streamlit run …'` | ขั้น **start** — บรรทัดที่ขึ้นต้นด้วย `[xxxxx]` คือ output ของ app เราเอง |
+| `Collecting usage statistics …` | Streamlit แจ้งว่าส่งสถิติการใช้งานแบบไม่ระบุตัวตน ไม่ใช่ error |
+| `URL: http://0.0.0.0:10000` | app ฟังที่ port 10000 ที่ Render ส่งมาทาง `$PORT` — ใช้ URL นี้เปิดจากเครื่องเราไม่ได้ |
+| `Your service is live` / `Available at your primary URL …` | health check ผ่าน Render เปิดให้คนเข้าได้ที่ URL นี้ |
+
+deploy ครั้งแรกใช้ราว **2–5 นาที** (ของจริง 1 นาที 44 วินาที) → สถานะเปลี่ยนเป็น **Deploy succeeded · Live** → กด URL `https://<name>.onrender.com` (อยู่ใน log บรรทัดท้ายและใต้ชื่อ service) → กรอกค่าแล้วกด **ประเมินความเสี่ยง** ควรเห็นความน่าจะเป็น คำแนะนำ และกราฟ SHAP waterfall
+
+::: {.callout-note}
+## เปิดครั้งแรกอาจเห็นหน้าดำนานเกือบ 1 นาที
+plan Free มี CPU แค่ 0.1 ตัว การ import `shap`, `scikit-learn` และ `matplotlib` ครั้งแรกจึงช้า (ทดสอบจริงราว 45 วินาที) และถ้า service หลับอยู่จะรอเพิ่มอีก — รอได้ ไม่ใช่ deploy พัง ครั้งต่อ ๆ ไปจะเร็วขึ้น
+:::
 
 ## 9. แก้โค้ด → push → deploy อัตโนมัติ
 

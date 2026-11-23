@@ -61,4 +61,6 @@
 
 - วิดีโอประกอบแต่ละ module (ใช้ pipeline แบบ INT3 ได้)
 - English mirror ของเว็บคอร์ส
-- ทดสอบ deploy จริงบน Render ด้วยบัญชีทดลองก่อนสอน และ dry-run การเตรียมเครื่องบน Windows จริง
+- dry-run การเตรียมเครื่องบน Windows จริง
+
+**ทดสอบ deploy จริงแล้ว (2026-11-23):** Render Web Service จาก repo นี้ build+deploy 1m44s, หน้าแรกโหลดราว 45s บน plan Free, ผลทำนายตรงกับเครื่อง (0.390 สำหรับค่า default) — หน้า Lab 4 เขียนตาม UI ของ Render ณ วันนั้น
