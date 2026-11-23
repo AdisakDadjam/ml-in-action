@@ -12,6 +12,7 @@ book:
   subtitle: "คัดกรองโรคด้วย machine learning ตั้งแต่เตรียมเครื่องจนขึ้น web app"
   author: "ผศ.ดร.รัตน์ชัยนันท์ ธรรมสุจริต"
   date: today
+  site-url: https://ratchainant.github.io/ml-in-action/
   repo-url: https://github.com/Ratchainant/ml-in-action
   repo-subdir: course
   repo-actions: [source, issue]

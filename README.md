@@ -2,6 +2,8 @@
 
 สื่อการสอน machine learning แบบลงมือทำ: **คัดกรองโรคเบาหวาน** ด้วย Logistic Regression และ Random Forest → อธิบายด้วย **SHAP** → ห่อเป็น **Streamlit web app** → deploy บน **Render** — เริ่มตั้งแต่เตรียมเครื่อง Windows / macOS, VS Code และ GitHub
 
+🌐 **เว็บคอร์ส:** <https://ratchainant.github.io/ml-in-action/>
+
 > ⚠️ เพื่อการเรียนรู้เท่านั้น — model และ app ไม่ใช่เครื่องมือทางการแพทย์
 
 ## สำหรับผู้เรียน
