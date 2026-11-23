@@ -47,6 +47,10 @@ git clone https://github.com/<ชื่อเรา>/ml-in-action.git
 ```bash
 code ml-in-action
 ```
+
+- `git clone …` ดาวน์โหลด repo พร้อมประวัติทั้งหมด มาเป็นโฟลเดอร์ `ml-in-action` ในโฟลเดอร์ที่ terminal เปิดอยู่ — ใช้ `cd` ไปที่ `C:\work` หรือ `~/work` ก่อน
+- `code ml-in-action` เปิดโฟลเดอร์นั้นใน VS Code (เหมือนกดปุ่ม **Open** ในข้อ 4 ข้างบน) — ถ้าขึ้น `code: command not found` บน macOS ให้ติดตั้งคำสั่ง `code` ตาม[หน้า macOS ข้อ 3.3](macos.qmd#vs-code) หรือเปิดผ่าน **File ▸ Open Folder** แทน
+
 ครั้งแรกที่ push, Git จะเปิด browser ให้ login GitHub (Windows ใช้ Git Credential Manager ที่มากับ Git; macOS ใช้ Keychain)
 :::
 
