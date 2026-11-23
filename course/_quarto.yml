@@ -36,7 +36,7 @@ book:
       chapters:
         - m3-shap/index.qmd
         - walkthrough/lab3-shap.qmd
-    - part: "M4 · จาก notebook สู่ web app"
+    - part: "M4 · Deploy web app บน Render"
       chapters:
         - m4-deploy/index.qmd
         - m4-deploy/render.qmd

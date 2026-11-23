@@ -142,7 +142,7 @@ toc: false
 
 ::: {.module}
 ::: {.module-head}
-[M4]{.mtag} **จาก notebook สู่ web app** [script ที่รันซ้ำได้ · Streamlit · test · Render]{.mgoal}
+[M4]{.mtag} **Deploy web app บน Render** [script ที่รันซ้ำได้ · Streamlit · test · Render]{.mgoal}
 :::
 ::: {.ep}
 [อ่าน]{.epno}

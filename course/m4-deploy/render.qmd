@@ -1,6 +1,6 @@
 ---
-title: "Deploy บน Render"
-subtitle: "Lab 4 · จาก GitHub repo สู่ URL ที่ใครก็เปิดได้"
+title: "Lab 4 · Deploy บน Render"
+subtitle: "M4 · จาก GitHub repo สู่ URL ที่ใครก็เปิดได้"
 ---
 
 ::: {.callout-note appearance="simple"}
